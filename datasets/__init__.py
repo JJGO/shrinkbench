@@ -2,13 +2,14 @@ import pathlib
 import os
 
 
-def data_paths(root_path=None):
+def get_data_paths(root_path=None):
     if root_path is None:
-        root_path = pathlib.Path(os.path.abspath(__file__)).parent
+        file_path = pathlib.Path(os.path.abspath(__file__))
+        root_path = file_path.parent.parent / 'data'
 
     paths = {
         'MNIST': root_path / 'MNIST',
-        'ImageNet': root_path / 'ILSVRC2012_localJJ',
+        'ImageNet': root_path / 'ILSVRC2012_local',
     }
 
     # If not local, check remote
