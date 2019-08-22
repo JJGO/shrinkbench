@@ -7,18 +7,23 @@ class LinearMasked(nn.Module):
 
     def __init__(self, linear_layer, weight_mask, bias_mask=None):
         super(LinearMasked, self).__init__()
+
         self.linear_layer = linear_layer
+        self.weight = self.linear_layer.weight
+        self.bias = self.linear_layer.bias
+
+        # use register_buffer so model.to(device) works on fixed tensors like masks
         self.register_buffer("weight_mask", weight_mask)
         self.register_buffer("bias_mask", bias_mask)
         if bias_mask is not None:
             assert linear_layer.bias is not None
 
     def forward(self, input):
-        weight = self.linear_layer.weight * self.weight_mask
+        weight = self.weight * self.weight_mask
         if self.bias_mask is not None:
-            bias = self.linear_layer.bias * self.bias_mask
+            bias = self.bias * self.bias_mask
         else:
-            bias = self.linear_layer.bias
+            bias = self.bias
         return F.linear(input, weight, bias)
 
 
@@ -26,7 +31,12 @@ class Conv2dMasked(nn.Module):
 
     def __init__(self, conv_layer, weight_mask, bias_mask=None):
         super(Conv2dMasked, self).__init__()
+
         self.conv_layer = conv_layer
+        self.weight = self.conv_layer.weight
+        self.bias = self.conv_layer.bias
+
+        # use register_buffer so model.to(device) works on fixed tensors like masks
         self.register_buffer("weight_mask", weight_mask)
         self.register_buffer("bias_mask", bias_mask)
         if bias_mask is not None:
@@ -34,11 +44,11 @@ class Conv2dMasked(nn.Module):
 
     def forward(self, input):
         conv = self.conv_layer
-        weight = conv.weight * self.weight_mask
+        weight = self.weight * self.weight_mask
         if self.bias_mask is not None:
-            bias = conv.bias * self.bias_mask
+            bias = self.bias * self.bias_mask
         else:
-            bias = conv.bias
+            bias = self.bias
 
         if conv.padding_mode == 'circular':
             expanded_padding = ((conv.padding[1] + 1) // 2, conv.padding[1] // 2,
