@@ -51,3 +51,12 @@ class ChannelPruning:
         if param.endswith('.weight'):
             return True
         return False
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(fraction={self.fraction}, axis={self.axis})"
+
+    def __str__(self):
+        return repr(self)
+
+    def shortrepr(self):
+        return f"chn_f{int(100*self.fraction)}"
