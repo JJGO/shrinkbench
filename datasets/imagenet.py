@@ -1,3 +1,4 @@
+# https://github.com/pytorch/examples/blob/master/imagenet/main.py
 from torchvision import transforms, datasets
 
 from . import get_data_paths
@@ -6,19 +7,21 @@ normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
 
 
-def imagenet_train(preproc=True):
+# TODO : Use HDF5 files instead
+
+
+def train_dataset(preproc=True):
 
     data_paths = get_data_paths()
 
-    train_preprocessing = transforms.Compose([
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        normalize,
-    ])
-
-    if not preproc:
-        train_preprocessing = None
+    train_preprocessing = None
+    if preproc:
+        train_preprocessing = transforms.Compose([
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ])
 
     train_dataset = datasets.ImageNet(data_paths['ImageNet'],
                                       'train',
@@ -26,19 +29,18 @@ def imagenet_train(preproc=True):
     return train_dataset
 
 
-def imagenet_val(preproc=True):
+def val_dataset(preproc=True):
 
     data_paths = get_data_paths()
 
-    val_preprocessing = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        normalize,
-    ])
-
-    if not preproc:
-        val_preprocessing = None
+    val_preprocessing = None
+    if preproc:
+        val_preprocessing = transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            normalize,
+        ])
 
     val_dataset = datasets.ImageNet(data_paths['ImageNet'],
                                     'val',
@@ -46,5 +48,5 @@ def imagenet_val(preproc=True):
     return val_dataset
 
 
-def imagenet_datasets(preproc=True):
-    return imagenet_train(preproc), imagenet_val(preproc)
+def get_datasets(preproc=True):
+    return train_dataset(preproc), val_dataset(preproc)
