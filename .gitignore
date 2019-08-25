@@ -103,3 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 data
+*.pt
+*.pth
+*.hdf5
+*.h5
