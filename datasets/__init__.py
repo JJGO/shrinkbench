@@ -10,6 +10,7 @@ def get_data_paths(root_path=None):
     paths = {
         'MNIST': root_path / 'MNIST',
         'ImageNet': root_path / 'ILSVRC2012_local',
+        'Places365': root_path / 'Places365'
     }
 
     # If not local, check remote
@@ -22,3 +23,15 @@ def get_data_paths(root_path=None):
         assert paths[data].exists()
 
     return paths
+
+
+def get_datasets(dataset, preproc=True):
+
+    if dataset == 'MNIST':
+        from .mnist import train_dataset, val_dataset
+    elif dataset == 'ImageNet':
+        from .imagenet import train_dataset, val_dataset
+    else:
+        raise ValueError(f"Invalid dataset: {dataset}")
+
+    return train_dataset(preproc), val_dataset(preproc)

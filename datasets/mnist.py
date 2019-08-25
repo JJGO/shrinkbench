@@ -31,7 +31,3 @@ def val_dataset(preproc=True):
                                  'val',
                                  transforms=val_preprocessing)
     return val_dataset
-
-
-def get_datasets(preproc=True):
-    return train_dataset(preproc), val_dataset(preproc)
