@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import time
+from fractions import Fraction
 
 
 def jsonfile(file):
@@ -13,7 +14,7 @@ def jsonfile(file):
 parser = argparse.ArgumentParser(description='Train a [pruned] Vision Net and finetune it')
 
 parser.add_argument('-s', '--strategy', dest='strategy', type=str, help='Pruning strategy')
-parser.add_argument('-p', '--pruning', dest='pruning', type=float, help='')
+parser.add_argument('-p', '--pruning', dest='pruning', type=Fraction, help='')
 parser.add_argument('-d', '--dataset', dest='dataset', type=str, help='Dataset to train on')
 parser.add_argument('-m', '--model', dest='model', type=str, help='What CNN to use')
 parser.add_argument('-r', '--seed', dest='seed', type=int, help='Random seed for reproducibility', default=42)
@@ -32,7 +33,7 @@ if __name__ == '__main__':
     from flor.experiment import PruningExperiment
 
     exp = PruningExperiment(strategy=args.strategy,
-                            pruning=args.pruning,
+                            pruning=float(args.pruning),
                             dataset=args.dataset,
                             model=args.model,
                             seed=args.seed,
