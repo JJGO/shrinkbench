@@ -8,9 +8,9 @@ def get_data_paths(root_path=None):
         root_path = file_path.parent.parent / 'data'
 
     paths = {
-        'MNIST': root_path / 'MNIST',
+        'MNIST': root_path,
         'ImageNet': root_path / 'ILSVRC2012_local',
-        'Places365': root_path / 'Places365'
+        # 'Places365': root_path / 'Places365'
     }
 
     # If not local, check remote

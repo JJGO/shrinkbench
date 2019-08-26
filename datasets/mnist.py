@@ -15,7 +15,7 @@ def train_dataset(preproc=True):
 
     train_dataset = datasets.MNIST(data_paths['MNIST'],
                                    'train',
-                                   transforms=train_preprocessing)
+                                   transform=train_preprocessing)
     return train_dataset
 
 
@@ -29,5 +29,5 @@ def val_dataset(preproc=True):
 
     val_dataset = datasets.MNIST(data_paths['MNIST'],
                                  'val',
-                                 transforms=val_preprocessing)
+                                 transform=val_preprocessing)
     return val_dataset
