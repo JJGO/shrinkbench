@@ -1,2 +1,2 @@
-from .mask import compute_masks, apply_masks, masked_module
+from .mask import compute_masks, mask_module
 from .modules import LinearMasked, Conv2dMasked
