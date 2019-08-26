@@ -7,9 +7,12 @@ It is intended as a baseline
 """
 
 import numpy as np
+import torch.nn as nn
 
 
 class RandomPruning:
+
+    masked_modules = (nn.Linear, nn.Conv2d)
 
     def __init__(self, fraction):
         self.fraction = fraction
@@ -31,8 +34,13 @@ class RandomPruning:
 
         return pruned_tensor
 
-    def match(self, param):
-        return False
+    def module_masks(self, module):
+        masks = {}
+        if isinstance(module, RandomPruning.masked_modules):
+            masks['weight'] = self.mask(module.weight.detach().cpu().numpy())
+            if module.bias is not None:
+                masks['bias'] = self.mask(module.bias.detach().cpu().numpy())
+        return masks
 
     def __repr__(self):
         return f"{self.__class__.__name__}(fraction={self.fraction}, axis={self.axis})"
@@ -41,4 +49,4 @@ class RandomPruning:
         return repr(self)
 
     def shortrepr(self):
-        return f"rnd_f{int(100*self.fraction)}"
+        return f"rnd_f{str(self.fraction)[2:]}"

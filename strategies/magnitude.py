@@ -9,9 +9,12 @@ keep only the _fraction_ with highest magnitudes.
 """
 
 import numpy as np
+import torch.nn as nn
 
 
 class MagnitudePruning:
+
+    masked_modules = (nn.Linear, nn.Conv2d)
 
     def __init__(self, fraction):
         self.fraction = fraction
@@ -38,12 +41,13 @@ class MagnitudePruning:
 
         return pruned_tensor
 
-    def match(self, param):
-        if param.endswith('.weight'):
-            return True
-        elif param.endswith('.bias'):
-            return True
-        return False
+    def module_masks(self, module):
+        masks = {}
+        if isinstance(module, MagnitudePruning.masked_modules):
+            masks['weight'] = self.mask(module.weight.detach().cpu().numpy())
+            if module.bias is not None:
+                masks['bias'] = self.mask(module.bias.detach().cpu().numpy())
+        return masks
 
     def __repr__(self):
         return f"{self.__class__.__name__}(fraction={self.fraction})"
@@ -52,4 +56,4 @@ class MagnitudePruning:
         return repr(self)
 
     def shortrepr(self):
-        return f"mag_f{int(100*self.fraction)}"
+        return f"mag_f{str(self.fraction)[2:]}"
