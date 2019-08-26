@@ -10,8 +10,8 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch.backends import cudnn
 
-from alfred import printc, uid, color  # Color pretty printing
-from pylot.util.summary import summary
+from alfred import printc, uid  # Misc utils
+# from pylot.util.summary import summary
 
 # flor imports
 from . import fix_seed
@@ -19,9 +19,11 @@ from .. import strategies
 from .. import models
 from ..datasets import get_datasets
 from ..metrics import model_size, correct
-from ..pruning import masked_module, compute_masks, apply_masks
+from ..pruning import mask_module, compute_masks
+from ..util import CSVLogger
 
 RESULTS_DIR = pathlib.Path('../results')
+DEBUG_DIR = pathlib.Path('../debug')
 TENSORBOARD_DIR = pathlib.Path('../tblogs')
 
 
@@ -35,12 +37,13 @@ class PruningExperiment:
                  seed=42,
                  path=None,
                  dl_kwargs=tuple(),
-                 train_kwargs=tuple()):
+                 train_kwargs=tuple(),
+                 debug=False):
 
         # Data loader params
         self.dl_kwargs = {'batch_size': 32,
                           'pin_memory': True,
-                          'num_workers': 6
+                          'num_workers': 4
                           }
         self.dl_kwargs.update(dl_kwargs)
 
@@ -50,17 +53,11 @@ class PruningExperiment:
                              }
         self.train_kwargs.update(train_kwargs)
 
-        ############### REPRODUCIBILITY ###############
-
         # Log all params for reproducibility
         params = {k: repr(v) for k, v in locals().items() if k != 'self'}
         params['dl_kwargs'] = self.dl_kwargs
         params['train_kwargs'] = self.train_kwargs
         self.params = params
-
-        # Fix python, numpy, torch seeds for reproducibility
-        self.seed = seed
-        fix_seed(self.seed)
 
         ############### PRUNING STRATEGY ###############
 
@@ -84,7 +81,8 @@ class PruningExperiment:
         self.model_name = model
         if isinstance(model, str):
             if hasattr(models, model):
-                model = getattr(models, model)
+                model = getattr(models, model)(pretrained=True)
+
             elif hasattr(torchvision.models, model):
                 model = getattr(torchvision.models, model)(pretrained=True)
             else:
@@ -95,19 +93,22 @@ class PruningExperiment:
         self.name = f"{self.model_name}_" + \
                     f"{self.dataset}_" + \
                     f"{self.strategy.shortrepr()}_" + \
-                    f"R{self.seed}_" + \
+                    f"R{seed}_" + \
                     f"{uid()}"
 
         if path is None:
-            path = RESULTS_DIR / self.name
+            if not debug:
+                path = RESULTS_DIR / self.name
+            else:
+                path = DEBUG_DIR / self.name
         self.path = pathlib.Path(path)
 
+        ############### REPRODUCIBILITY ###############
+        # Fix python, numpy, torch seeds for reproducibility
+        self.seed = seed
+        fix_seed(self.seed)
 
-
-    def run(self):
-        exp = repr(self) #.replace(', ', ',\n\t')
-        printc(f"Running experiment {exp}", color='YELLOW')
-
+    def _pre_run(self):
         ## Logging init
         printc(f"Logging results to {self.path}", color='MAGENTA')
 
@@ -116,18 +117,19 @@ class PruningExperiment:
             json.dump(self.params, f, indent=4)
 
         # Tensorboard logs
-        tb_logdir = TENSORBOARD_DIR / self.expname
+        tb_logdir = TENSORBOARD_DIR / self.name
         self.tb_writer = SummaryWriter(log_dir=tb_logdir.as_posix())
 
         # CSV logs
-        self.csv_file = open(self.path / 'finetuning.csv', 'w')
-        self.csv_writer = csv.writer(self.csv_file)
-        self.csv_writer.writerow(['Train Loss',
-                                  'Train Acc1',
-                                  'Train Acc5',
-                                  'Val Loss',
-                                  'Val Acc1',
-                                  'Val Acc5'])
+        self.csvlogger = CSVLogger(self.path / 'finetuning.csv',
+            ['epoch',
+             'train_loss', 'train_acc1', 'train_acc5',
+             'val_loss', 'val_acc1', 'val_acc5'])
+
+    def run(self):
+        printc(f"Running {repr(self)}", color='YELLOW')
+
+        self._pre_run()
 
         ### Training setup
         self.epochs = self.train_kwargs['epochs']
@@ -149,9 +151,10 @@ class PruningExperiment:
         #### Pruning ####
         # Prune it based on strategy
         print("Masking model")
-        masked_module(self.model, self.strategy)
+        # masked_module(self.model, self.strategy)
         masks = compute_masks(self.model, self.strategy)
-        apply_masks(self.model, masks)
+        mask_module(self.model, masks)
+        # apply_masks(self.model, masks)
         printc("Masked model", color='GREEN')
 
         # Torch CUDA config
@@ -159,28 +162,27 @@ class PruningExperiment:
         self.model.to(self.device)
         cudnn.benchmark = True   # For fast training.
 
-        with open(self.path / 'summary.txt', 'w') as f:
-            # TODO Make size parametric of dataset
-            print(summary(self.model, (3, 224, 224)), file=f)
-
         #### Pre-finetuning ####
         # Compute metrics and save them
         metrics = {}
         metrics['pre'] = self.compute_metrics()
-        print(metrics['pre'])
-        for m, v in metrics['pre'].items():
-            print(m, type(v))
+        printc(metrics['pre'], color='GRASS')
         with open(self.path / 'metrics.json', 'w') as f:
             json.dump(metrics, f, indent=4)
 
         #### Finetuning ####
-        for epoch in range(self.epochs):
-            train_results = self.train(epoch)
-            val_results = self.eval(epoch)
-            # TODO Early stopping
-            # TODO ReduceLR on plateau?
-            self.csv_writer.writerow(train_results+val_results)
-            self.csv_file.flush()
+        try:
+            for epoch in range(1, self.epochs+1):
+                printc(f"Start epoch {epoch}", color='YELLOW')
+                self.train(epoch)
+                self.eval(epoch)
+                # TODO Early stopping
+                # TODO ReduceLR on plateau?
+                self.csvlogger.set(epoch=epoch)
+                self.csvlogger.update()
+        except KeyboardInterrupt:
+            printc(f"Interrupted at epoch {epoch}", color='RED')
+
 
         #### Post-finetuning ####
         # Save Model
@@ -189,12 +191,15 @@ class PruningExperiment:
 
         # Recompute metrics and save them
         metrics['post'] = self.compute_metrics()
+        printc(metrics['post'], color='GRASS')
         with open(self.path / 'metrics.json', 'w') as f:
             json.dump(metrics, f, indent=4)
 
+        self.metrics = metrics
+
         # Logging Teardown
         self.tb_writer.close()
-        self.csv_writer.close()
+        self.csvlogger.close()
 
     def run_epoch(self, train, epoch=0):
         if train:
@@ -233,13 +238,19 @@ class PruningExperiment:
                                        top5=acc5.item() / (i * dl.batch_size))
 
         total_loss /= len(dl) * dl.batch_size
-        acc1 /= len(dl)
-        acc5 /= len(dl)
+        acc1 /= len(dl) * dl.batch_size
+        acc5 /= len(dl) * dl.batch_size
 
         # Tensorboard logging
         self.tb_writer.add_scalar(f'{prefix} Loss', loss, epoch)
         self.tb_writer.add_scalar(f'{prefix} Acc1', acc1, epoch)
         self.tb_writer.add_scalar(f'{prefix} Acc5', acc5, epoch)
+
+        self.csvlogger.set(**{
+            f'{prefix.lower()}_loss': loss,
+            f'{prefix.lower()}_acc1': acc1,
+            f'{prefix.lower()}_acc5': acc5,
+        })
 
         # TODO Model checkpointing based on best val loss/acc
 
@@ -273,19 +284,9 @@ class PruningExperiment:
         metrics['flops_nz'] = flops_nz
 
         # Accuracy
-        acc1 = 0
-        acc5 = 0
-        with torch.no_grad():
-            for x, y in tqdm(self.val_dl):
-                x, y = x.to(self.device), y.to(self.device)
-                yhat = self.model(x)
-                c1, c5 = correct(yhat, y, (1, 5))
-                acc1 += c1
-                acc5 += c5
+        loss, acc1, acc5 = self.run_epoch(False, -1)
 
-        acc1 /= len(self.val_dl)
-        acc5 /= len(self.val_dl)
-
+        metrics['loss'] = loss.item()
         metrics['val_acc1'] = acc1.item()
         metrics['val_acc5'] = acc5.item()
 
