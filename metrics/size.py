@@ -15,7 +15,7 @@ def model_size(model):
     for param, tensor in model.state_dict().items():
         if True:
             total_params += np.prod(tensor.shape)
-            nonzero_params += nonzero(tensor.cpu().numpy())
+            nonzero_params += nonzero(tensor.detach().cpu().numpy())
     return int(total_params), int(nonzero_params)
 
 

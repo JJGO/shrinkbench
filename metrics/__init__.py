@@ -36,5 +36,5 @@ dtype2bits = {
 }
 
 
-from .size import model_size
+from .size import model_size, model_size_bits
 from .accuracy import accuracy, correct
