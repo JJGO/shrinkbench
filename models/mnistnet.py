@@ -16,7 +16,7 @@ class mnistnet(nn.Module):
         self.fc2 = nn.Linear(500, 10)
 
         if pretrained:
-            weights = get_weights_path()['mnistnet']
+            weights = get_weights_path()['mnistnet'] / 'mnistnet.pt'
             self.load_state_dict(torch.load(weights))
 
     def forward(self, x):
