@@ -5,6 +5,7 @@ from . import get_data_paths
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
+shape = (1, 224, 224)
 
 
 # TODO : Use HDF5 files instead
