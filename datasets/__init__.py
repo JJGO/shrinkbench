@@ -10,6 +10,7 @@ def get_data_paths(root_path=None):
     paths = {
         'MNIST': root_path,
         'ImageNet': root_path / 'ILSVRC2012_local',
+        'CIFAR10': root_path / 'CIFAR10',
         # 'Places365': root_path / 'Places365'
     }
 
@@ -31,6 +32,8 @@ def get_datasets(dataset, preproc=True):
         from .mnist import train_dataset, val_dataset
     elif dataset == 'ImageNet':
         from .imagenet import train_dataset, val_dataset
+    elif dataset == 'CIFAR10':
+        from .cifar10 import train_dataset, val_dataset
     else:
         raise ValueError(f"Invalid dataset: {dataset}")
 
