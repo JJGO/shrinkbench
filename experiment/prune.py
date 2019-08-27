@@ -38,7 +38,8 @@ class PruningExperiment:
                  path=None,
                  dl_kwargs=tuple(),
                  train_kwargs=tuple(),
-                 debug=False):
+                 debug=False,
+                 pretrained=True):
 
         # Data loader params
         self.dl_kwargs = {'batch_size': 32,
@@ -81,17 +82,17 @@ class PruningExperiment:
         self.model_name = model
         if isinstance(model, str):
             if hasattr(models, model):
-                model = getattr(models, model)(pretrained=True)
+                model = getattr(models, model)(pretrained=pretrained)
 
             elif hasattr(torchvision.models, model):
-                model = getattr(torchvision.models, model)(pretrained=True)
+                model = getattr(torchvision.models, model)(pretrained=pretrained)
             else:
                 raise ValueError(f"Model {model} not available in custom models or torchvision models")
         self.model = model
 
         # Experiment name and folder
-        self.name = f"{self.model_name}_" + \
-                    f"{self.dataset}_" + \
+        self.name = f"{self.dataset}_" + \
+                    f"{self.model_name}_" + \
                     f"{self.strategy.shortrepr()}_" + \
                     f"R{seed}_" + \
                     f"{uid()}"
@@ -236,7 +237,7 @@ class PruningExperiment:
                 epoch_iter.set_postfix(loss=total_loss / i, #* dl.batch_size,
                                        top1=acc1.item() / (i * dl.batch_size),
                                        top5=acc5.item() / (i * dl.batch_size))
-
+        # TODO check loss is right
         total_loss /= len(dl) * dl.batch_size
         acc1 /= len(dl) * dl.batch_size
         acc5 /= len(dl) * dl.batch_size

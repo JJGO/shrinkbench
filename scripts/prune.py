@@ -17,6 +17,7 @@ parser.add_argument('-s', '--strategy', dest='strategy', type=str, help='Pruning
 parser.add_argument('-p', '--pruning', dest='pruning', type=Fraction, help='')
 parser.add_argument('-d', '--dataset', dest='dataset', type=str, help='Dataset to train on')
 parser.add_argument('-m', '--model', dest='model', type=str, help='What CNN to use')
+parser.add_argument('-w', '--pretrained', dest='pretrained', action='store_true', default=True, help='Use pretrained weights if possible')
 parser.add_argument('-r', '--seed', dest='seed', type=int, help='Random seed for reproducibility', default=42)
 parser.add_argument('-P', '--path', dest='path', type=str, help='path to save', default=None)
 parser.add_argument('-D', '--dl', dest='dl_kwargs', type=json.loads, help='JSON string of DataLoader parameters', default=tuple())
@@ -38,6 +39,7 @@ if __name__ == '__main__':
                             model=args.model,
                             seed=args.seed,
                             path=args.path,
+                            pretrained=args.pretrained,
                             dl_kwargs=args.dl_kwargs,
                             train_kwargs=args.train_kwargs)
 
