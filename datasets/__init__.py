@@ -1,3 +1,5 @@
+from .imageh5 import ImageHDF5Dataset
+
 import pathlib
 import os
 
