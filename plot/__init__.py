@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 COLUMNS = ['dataset', 'model', 'strategy', 'pruning',
            'pre_acc1', 'pre_acc5', 'post_acc1', 'post_acc5',
            'size', 'size_nz', 'compression', 'memory', 'memory_nz', 'flops', 'flops_nz',
-           'seed']
+           'seed', 'path']
 STRATEGIES = ['MagnitudePruning', 'ChannelPruning', 'RandomPruning']
 CMAP = plt.get_cmap('Set1')
 
@@ -32,6 +32,7 @@ def df_from_results(results_path, glob='*'):
             row += [metrics['post']['memory'], metrics['post']['memory_nz']]
             row += [metrics['post']['flops'], metrics['post']['flops_nz']]
             row += [params['seed']]
+            row += [str(exp)]
             results.append(row)
     return pd.DataFrame(data=results, columns=COLUMNS)
 
