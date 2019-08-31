@@ -17,5 +17,6 @@ def get_weights_path(root_path=None):
     return paths
 
 
+from .head import replace_head
 from .mnistnet import mnistnet
-from .cifar10_resnet import resnet20, resnet32, resnet44, resnet56, resnet110, resnet1202
+from .cifar_resnet import resnet20, resnet32, resnet44, resnet56, resnet110, resnet1202
