@@ -6,6 +6,13 @@ import PIL.Image
 from tqdm import tqdm
 
 
+def pil_loader(path):
+    # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
+    with open(path, 'rb') as f:
+        img = PIL.Image.open(f)
+        return img.convert('RGB')
+
+
 def Imagefolder_to_hdf5(folder_path, output_file):
 
     folder_path = pathlib.Path(folder_path)
@@ -18,11 +25,11 @@ def Imagefolder_to_hdf5(folder_path, output_file):
 
             for image_path in tqdm(sorted(class_path.iterdir()), desc=class_name, leave=False):
                 image_name = image_path.stem
-                img_data = PIL.Image.open(image_path)
+                img_data = pil_loader(image_path)
                 img = class_grp.create_dataset(image_name, data=img_data)
 
 
-parser = argparse.ArgumentParser(description='Train a [pruned] Vision Net and finetune it')
+parser = argparse.ArgumentParser(description='Convert a ImageFolder with dataset into HDF5')
 
 parser.add_argument('folder', type=str, help='Folder to crawl')
 parser.add_argument('h5file', type=str, help='Output HDF5 filename')
