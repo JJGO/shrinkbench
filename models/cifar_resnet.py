@@ -40,6 +40,8 @@ from . import get_weights_path
 
 __all__ = ['ResNet', 'resnet20', 'resnet32', 'resnet44', 'resnet56', 'resnet110', 'resnet1202']
 
+from . import replace_head
+
 
 def _weights_init(m):
     classname = m.__class__.__name__
@@ -179,5 +181,79 @@ def resnet1202(pretrained=True):
         weights = get_weights_path()['cifar10_resnet'] / 'resnet1202.th'
         weights = torch.load(weights)['state_dict']
         weights = { k[len("module."):] : v for k, v in weights.items()}
+        model.load_state_dict(weights)
+    return model
+
+###########################
+
+
+def resnet20_100(pretrained=True):
+    model = ResNet(BasicBlock, [3, 3, 3])
+    # Edit last layer for 100 classes output tensor
+    replace_head(model, 100, False)
+    if pretrained:
+        weights = get_weights_path()['cifar100_resnet'] / 'resnet20.th'
+        weights = torch.load(weights)['state_dict']
+        # weights = { k[len("module."):] : v for k, v in weights.items()}
+        model.load_state_dict(weights)
+    return model
+
+
+def resnet32_100(pretrained=True):
+    model = ResNet(BasicBlock, [5, 5, 5])
+    # Edit last layer for 100 classes output tensor
+    replace_head(model, 100, False)
+    if pretrained:
+        weights = get_weights_path()['cifar100_resnet'] / 'resnet32.th'
+        weights = torch.load(weights)['state_dict']
+        # weights = { k[len("module."):] : v for k, v in weights.items()}
+        model.load_state_dict(weights)
+    return model
+
+
+def resnet44_100(pretrained=True):
+    model = ResNet(BasicBlock, [7, 7, 7])
+    # Edit last layer for 100 classes output tensor
+    replace_head(model, 100, False)
+    if pretrained:
+        weights = get_weights_path()['cifar100_resnet'] / 'resnet44.th'
+        weights = torch.load(weights)['state_dict']
+        # weights = { k[len("module."):] : v for k, v in weights.items()}
+        model.load_state_dict(weights)
+    return model
+
+
+def resnet56_100(pretrained=True):
+    model = ResNet(BasicBlock, [9, 9, 9])
+    # Edit last layer for 100 classes output tensor
+    replace_head(model, 100, False)
+    if pretrained:
+        weights = get_weights_path()['cifar100_resnet'] / 'resnet56.th'
+        weights = torch.load(weights)['state_dict']
+        # weights = { k[len("module."):] : v for k, v in weights.items()}
+        model.load_state_dict(weights)
+    return model
+
+
+def resnet110_100(pretrained=True):
+    model = ResNet(BasicBlock, [18, 18, 18])
+    # Edit last layer for 100 classes output tensor
+    replace_head(model, 100, False)
+    if pretrained:
+        weights = get_weights_path()['cifar100_resnet'] / 'resnet110.th'
+        weights = torch.load(weights)['state_dict']
+        # weights = { k[len("module."):] : v for k, v in weights.items()}
+        model.load_state_dict(weights)
+    return model
+
+
+def resnet1202_100(pretrained=True):
+    model = ResNet(BasicBlock, [200, 200, 200])
+    # Edit last layer for 100 classes output tensor
+    replace_head(model, 100, False)
+    if pretrained:
+        weights = get_weights_path()['cifar100_resnet'] / 'resnet1202.th'
+        weights = torch.load(weights)['state_dict']
+        # weights = { k[len("module."):] : v for k, v in weights.items()}
         model.load_state_dict(weights)
     return model
