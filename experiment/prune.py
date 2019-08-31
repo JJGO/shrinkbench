@@ -49,7 +49,7 @@ class PruningExperiment:
         self.dl_kwargs.update(dl_kwargs)
 
         self.train_kwargs = {'optim': 'SGD',
-                             'epochs': 50,
+                             'epochs': 30,
                              'lr': 1e-3,
                              }
         self.train_kwargs.update(train_kwargs)
@@ -85,6 +85,7 @@ class PruningExperiment:
                 model = getattr(models, model)(pretrained=pretrained)
 
             elif hasattr(torchvision.models, model):
+                # https://pytorch.org/docs/stable/torchvision/models.html
                 model = getattr(torchvision.models, model)(pretrained=pretrained)
             else:
                 raise ValueError(f"Model {model} not available in custom models or torchvision models")
@@ -102,7 +103,7 @@ class PruningExperiment:
                 path = RESULTS_DIR / self.name
             else:
                 path = DEBUG_DIR / self.name
-        self.path = pathlib.Path(path)
+        self.path = pathlib.Path(path) / self.name
 
         ############### REPRODUCIBILITY ###############
         # Fix python, numpy, torch seeds for reproducibility
@@ -125,7 +126,8 @@ class PruningExperiment:
         self.csvlogger = CSVLogger(self.path / 'finetuning.csv',
             ['epoch',
              'train_loss', 'train_acc1', 'train_acc5',
-             'val_loss', 'val_acc1', 'val_acc5'])
+             'val_loss', 'val_acc1', 'val_acc5',
+             'timestamp'])
 
     def run(self):
         printc(f"Running {repr(self)}", color='YELLOW')
@@ -160,6 +162,8 @@ class PruningExperiment:
 
         # Torch CUDA config
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        if not torch.cuda.is_available():
+            printc("GPU NOT AVAILABLE, USING CPU!", color="RED")
         self.model.to(self.device)
         cudnn.benchmark = True   # For fast training.
 
@@ -172,6 +176,7 @@ class PruningExperiment:
             json.dump(metrics, f, indent=4)
 
         #### Finetuning ####
+        since = time.time()
         try:
             for epoch in range(1, self.epochs+1):
                 printc(f"Start epoch {epoch}", color='YELLOW')
@@ -180,7 +185,15 @@ class PruningExperiment:
                 # TODO Early stopping
                 # TODO ReduceLR on plateau?
                 self.csvlogger.set(epoch=epoch)
+                self.csvlogger.set(timestamp=time.time()-since)
                 self.csvlogger.update()
+
+                # Checkpoint epochs
+                torch.save({
+                    'model_state_dict': self.model.state_dict(),
+                    'optim_state_dict': self.optim.state_dict()
+                    }, self.path / f'checkpoint-{epoch}.pt')
+
         except KeyboardInterrupt:
             printc(f"Interrupted at epoch {epoch}", color='RED')
 
