@@ -1,5 +1,6 @@
 # https://github.com/pytorch/examples/blob/master/imagenet/main.py
-from torchvision import transforms, datasets
+from torchvision import transforms
+from .imageh5 import ImageHDF5Dataset
 
 from . import get_data_paths
 
@@ -21,9 +22,8 @@ def train_dataset(preproc=True):
             normalize,
         ])
 
-    train_dataset = datasets.ImageNet(data_paths['ImageNet'],
-                                      'train',
-                                      transform=train_preprocessing)
+    train_dataset = ImageHDF5Dataset(data_paths['ImageNetHDF5'] / 'ILSVRC2012_img_train.h5',
+                                     transform=train_preprocessing)
     return train_dataset
 
 
@@ -40,7 +40,6 @@ def val_dataset(preproc=True):
             normalize,
         ])
 
-    val_dataset = datasets.ImageNet(data_paths['ImageNet'],
-                                    'val',
-                                    transform=val_preprocessing)
+    val_dataset = ImageHDF5Dataset(data_paths['ImageNetHDF5'] / 'ILSVRC2012_img_val.h5',
+                                   transform=val_preprocessing)
     return val_dataset
