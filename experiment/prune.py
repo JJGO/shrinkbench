@@ -1,6 +1,6 @@
-import csv
 import json
 import pathlib
+import time
 from tqdm import tqdm
 
 import torch
@@ -17,7 +17,7 @@ from alfred import printc, uid  # Misc utils
 from . import fix_seed
 from .. import strategies
 from .. import models
-from ..datasets import get_datasets
+from ..datasets import train_val_datasets
 from ..metrics import model_size, correct
 from ..pruning import mask_module, compute_masks
 from ..util import CSVLogger
@@ -42,9 +42,9 @@ class PruningExperiment:
                  pretrained=True):
 
         # Data loader params
-        self.dl_kwargs = {'batch_size': 32,
+        self.dl_kwargs = {'batch_size': 256,
                           'pin_memory': True,
-                          'num_workers': 4
+                          'num_workers': 16
                           }
         self.dl_kwargs.update(dl_kwargs)
 
@@ -54,6 +54,9 @@ class PruningExperiment:
                              }
         self.train_kwargs.update(train_kwargs)
 
+        if dataset.startswith('ImageNet'):
+            self.dl_kwargs['pin_memory'] = False
+
         # Log all params for reproducibility
         params = {k: repr(v) for k, v in locals().items() if k != 'self'}
         params['dl_kwargs'] = self.dl_kwargs
@@ -61,18 +64,22 @@ class PruningExperiment:
         self.params = params
 
         ############### PRUNING STRATEGY ###############
-
-        # Load strategy
-        self.pruning = pruning
-        if isinstance(strategy, str):
-            strategy = getattr(strategies, strategy)(pruning)
-        self.strategy = strategy
+        if strategy is not None:
+            # Load strategy
+            self.pruning = pruning
+            if isinstance(strategy, str):
+                strategy = getattr(strategies, strategy)(pruning)
+            self.strategy = strategy
+        else:
+            # We are just finetuning/pretraining model
+            self.strategy = None
+            self.pruning = None
 
         ############### DATASET ###############
 
         # Get dataset & dataloaders
         self.dataset = dataset
-        self.train_dataset, self.val_dataset = get_datasets(dataset, preproc=True)
+        self.train_dataset, self.val_dataset = train_val_datasets(dataset, preproc=True)
         self.train_dl = DataLoader(self.train_dataset, shuffle=True, **self.dl_kwargs)
         self.val_dl = DataLoader(self.val_dataset, shuffle=False, **self.dl_kwargs)
 
@@ -91,18 +98,19 @@ class PruningExperiment:
                 raise ValueError(f"Model {model} not available in custom models or torchvision models")
         self.model = model
 
+        strat = self.strategy.shortrepr() if self.strategy is not None else "train"
         # Experiment name and folder
         self.name = f"{self.dataset}_" + \
                     f"{self.model_name}_" + \
-                    f"{self.strategy.shortrepr()}_" + \
+                    f"{strat}_" + \
                     f"R{seed}_" + \
                     f"{uid()}"
 
         if path is None:
             if not debug:
-                path = RESULTS_DIR / self.name
+                path = RESULTS_DIR
             else:
-                path = DEBUG_DIR / self.name
+                path = DEBUG_DIR
         self.path = pathlib.Path(path) / self.name
 
         ############### REPRODUCIBILITY ###############
@@ -153,12 +161,13 @@ class PruningExperiment:
 
         #### Pruning ####
         # Prune it based on strategy
-        print("Masking model")
-        # masked_module(self.model, self.strategy)
-        masks = compute_masks(self.model, self.strategy)
-        mask_module(self.model, masks)
-        # apply_masks(self.model, masks)
-        printc("Masked model", color='GREEN')
+        if self.strategy is not None:
+            print("Masking model")
+            # masked_module(self.model, self.strategy)
+            masks = compute_masks(self.model, self.strategy)
+            mask_module(self.model, masks)
+            # apply_masks(self.model, masks)
+            printc("Masked model", color='GREEN')
 
         # Torch CUDA config
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -246,7 +255,6 @@ class PruningExperiment:
                 c1, c5 = correct(yhat, y, (1, 5))
                 acc1 += c1
                 acc5 += c5
-
                 epoch_iter.set_postfix(loss=total_loss / i, #* dl.batch_size,
                                        top1=acc1.item() / (i * dl.batch_size),
                                        top5=acc5.item() / (i * dl.batch_size))
