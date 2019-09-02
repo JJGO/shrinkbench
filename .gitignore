@@ -111,3 +111,6 @@ results
 tblogs
 debug
 pretrained
+__old
+slurmlog
+scripts/imagenet_profiling_results.csv
