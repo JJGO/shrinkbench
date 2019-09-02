@@ -16,7 +16,7 @@ def nonzero(tensor):
     """
     return np.sum(tensor != 0.0)
 
-
+# https://pytorch.org/docs/stable/tensor_attributes.html
 dtype2bits = {
     torch.float32: 32,
     torch.float: 32,
