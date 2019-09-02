@@ -1,16 +1,16 @@
 # https://github.com/pytorch/examples/blob/master/imagenet/main.py
 from torchvision import transforms, datasets
 
-from . import get_data_paths
+from . import dataset_path
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
-shape = (1, 224, 224)
+shape = (3, 224, 224)
 
 
-def train_dataset(preproc=True):
+def train_dataset(preproc=True, path=None):
 
-    data_paths = get_data_paths()
+    data_path = dataset_path('ILSVRC2012', path)
 
     train_preprocessing = None
     if preproc:
@@ -21,15 +21,15 @@ def train_dataset(preproc=True):
             normalize,
         ])
 
-    train_dataset = datasets.ImageNet(data_paths['ImageNet'],
+    train_dataset = datasets.ImageNet(data_path,
                                       'train',
                                       transform=train_preprocessing)
     return train_dataset
 
 
-def val_dataset(preproc=True):
+def val_dataset(preproc=True, path=None):
 
-    data_paths = get_data_paths()
+    data_path = dataset_path('ILSVRC2012', path)
 
     val_preprocessing = None
     if preproc:
@@ -40,7 +40,7 @@ def val_dataset(preproc=True):
             normalize,
         ])
 
-    val_dataset = datasets.ImageNet(data_paths['ImageNet'],
+    val_dataset = datasets.ImageNet(data_path,
                                     'val',
                                     transform=val_preprocessing)
     return val_dataset

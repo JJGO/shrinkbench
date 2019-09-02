@@ -1,6 +1,6 @@
 from torchvision import transforms, datasets
 
-from . import get_data_paths
+from . import dataset_path
 
 # TODO this is Imagenet norm values
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -8,9 +8,9 @@ normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
 shape = (3, 32, 32)
 
 
-def train_dataset(preproc=True):
+def train_dataset(preproc=True, path=None):
 
-    data_paths = get_data_paths()
+    data_path = dataset_path('CIFAR10', path)
 
     train_preprocessing = None
     if preproc:
@@ -21,21 +21,21 @@ def train_dataset(preproc=True):
             normalize,
         ])
 
-    train_dataset = datasets.CIFAR10(data_paths['CIFAR10'],
+    train_dataset = datasets.CIFAR10(data_path,
                                      train=True,
                                      transform=train_preprocessing)
     return train_dataset
 
 
-def val_dataset(preproc=True):
+def val_dataset(preproc=True, path=None):
 
-    data_paths = get_data_paths()
+    data_path = dataset_path('CIFAR10', path)
 
     val_preprocessing = None
     if preproc:
         val_preprocessing = transforms.Compose([transforms.ToTensor(), normalize])
 
-    val_dataset = datasets.CIFAR10(data_paths['CIFAR10'],
+    val_dataset = datasets.CIFAR10(data_path,
                                    train=False,
                                    transform=val_preprocessing)
     return val_dataset

@@ -2,16 +2,16 @@
 from torchvision import transforms
 from .imageh5 import ImageHDF5Dataset
 
-from . import get_data_paths
+from . import dataset_path
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
 shape = (1, 224, 224)
 
 
-def train_dataset(preproc=True):
+def train_dataset(preproc=True, path=None):
 
-    data_paths = get_data_paths()
+    data_path = dataset_path('ILSVRC2012_HDF5', path)
 
     train_preprocessing = None
     if preproc:
@@ -22,14 +22,14 @@ def train_dataset(preproc=True):
             normalize,
         ])
 
-    train_dataset = ImageHDF5Dataset(data_paths['ImageNetHDF5'] / 'ILSVRC2012_img_train.h5',
+    train_dataset = ImageHDF5Dataset(data_path / 'ILSVRC2012_img_train_bin.h5',
                                      transform=train_preprocessing)
     return train_dataset
 
 
-def val_dataset(preproc=True):
+def val_dataset(preproc=True, path=None):
 
-    data_paths = get_data_paths()
+    data_path = dataset_path('ILSVRC2012_HDF5', path)
 
     val_preprocessing = None
     if preproc:
@@ -40,6 +40,6 @@ def val_dataset(preproc=True):
             normalize,
         ])
 
-    val_dataset = ImageHDF5Dataset(data_paths['ImageNetHDF5'] / 'ILSVRC2012_img_val.h5',
+    val_dataset = ImageHDF5Dataset(data_path / 'ILSVRC2012_img_val_bin.h5',
                                    transform=val_preprocessing)
     return val_dataset
