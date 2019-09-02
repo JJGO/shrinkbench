@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from . import get_weights_path
+from . import weights_path
 
 
 class mnistnet(nn.Module):
@@ -16,7 +16,7 @@ class mnistnet(nn.Module):
         self.fc2 = nn.Linear(500, 10)
 
         if pretrained:
-            weights = get_weights_path()['mnistnet'] / 'mnistnet.pt'
+            weights = weights_path('mnistnet.pt')
             self.load_state_dict(torch.load(weights))
 
     def forward(self, x):

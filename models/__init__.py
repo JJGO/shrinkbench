@@ -1,22 +1,41 @@
 import os
 import pathlib
 
-WEIGHTS_DIR = pathlib.Path(os.path.abspath(__file__)).parent / 'pretrained'
+WEIGHTS_DIR = '../pretrained'
 
 
-def get_weights_path(root_path=None):
-    if root_path is None:
-        file_path = pathlib.Path(os.path.abspath(__file__))
-        root_path = file_path.parent.parent / 'pretrained'
+def weights_path(model, path=None):
 
-    paths = {
-        'mnistnet': root_path / 'mnist',
-        'cifar10_resnet': root_path / 'cifar10'
-    }
+    if path is None:
+        path = WEIGHTS_DIR
+        # Look for the dataset in known paths
+        if 'WEIGHTSPATH' in os.environ:
+            path = os.environ['WEIGHTSPATH'] + ':' + path
+    paths = [pathlib.Path(p) for p in path.split(':')]
 
-    return paths
+    for p in paths:
+        for root, dirs, files in os.walk(p, followlinks=True):
+            if model in files:
+                return pathlib.Path(root) / model
+            # for file in files:
+            #     path = pathlib.Path(root) / file
+            #     if str(path).endswith(model):
+            #         return path
+    else:
+        raise LookupError(f"Could not find {model} in {paths}")
 
 
 from .head import replace_head
 from .mnistnet import mnistnet
-from .cifar_resnet import resnet20, resnet32, resnet44, resnet56, resnet110, resnet1202
+from .cifar_resnet import (resnet20,
+                           resnet32,
+                           resnet44,
+                           resnet56,
+                           resnet110,
+                           resnet1202)
+from .cifar_resnet import (resnet20_100,
+                           resnet32_100,
+                           resnet44_100,
+                           resnet56_100,
+                           resnet110_100,
+                           resnet1202_100)
