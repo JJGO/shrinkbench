@@ -1,3 +1,4 @@
+import io
 import pathlib
 
 import h5py
@@ -5,6 +6,17 @@ import PIL.Image
 import numpy as np
 from torch.utils.data import Dataset
 from tqdm import tqdm
+
+# For high performance PIL operations use
+# pillow-simd instead of pillow
+# https://python-pillow.org/pillow-perf/
+# https://github.com/uploadcare/pillow-simd
+import pkg_resources
+try:
+    pkg_resources.get_distribution("Pillow-SIMD")
+except pkg_resources.DistributionNotFound:
+    import warnings
+    warnings.warn("\033[93mPillow-SIMD not installed. PIL operations could be faster using SIMD/AVX instructions https://github.com/uploadcare/pillow-simd\033[0m")
 
 
 def make_dataset(hf):
@@ -27,20 +39,36 @@ def class_to_idx(hf):
     return class_to_idx
 
 
-def PIL_loader(array):
+def array_loader(array):
     return PIL.Image.fromarray(array)
+
+
+def binary_loader(array):
+    img_bytes = io.BytesIO(array)
+    return PIL.Image.open(img_bytes).convert('RGB')
+
+
+mode_to_loader = {
+    "binary": binary_loader,
+    "array": array_loader,
+}
 
 
 class ImageHDF5Dataset(Dataset):
 
-    def __init__(self, h5file, loader=PIL_loader,
+    def __init__(self, h5file,
                  transform=None,  target_transform=None):
         super(ImageHDF5Dataset, self).__init__()
 
         self.h5file = pathlib.Path(h5file)
-        indexfile = h5file.with_suffix('.idx.npy')
+        indexfile = self.h5file.with_suffix('.idx.npy')
 
-        self.loader = loader
+        with h5py.File(h5file, 'r') as hf:
+            # TODO remove next two lines after adding mode to existing files
+            if 'mode' not in hf.attrs:
+                self.loader = array_loader
+            else:
+                self.loader = mode_to_loader[hf.attrs['mode']]
         self.transform = transform
         self.target_transform = target_transform
         # Compile image & label list
@@ -62,7 +90,7 @@ class ImageHDF5Dataset(Dataset):
         # https://gist.github.com/bkj/f448025fdef08c0609029489fa26ea2a
         path, target = self.samples[index]
         with h5py.File(self.h5file, 'r') as hf:
-            sample = self.loader(hf[path].value)
+            sample = self.loader(hf[path][()])
         if self.transform is not None:
             sample = self.transform(sample)
         if self.target_transform is not None:
