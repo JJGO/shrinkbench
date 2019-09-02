@@ -1,31 +1,5 @@
 from torch import nn
 import torchvision.models
-from .. import models as custom_models
-
-# classifier is .fc
-MODELS_WITH_FC = (
-    torchvision.models.ResNet,
-    torchvision.models.GoogLeNet,
-    torchvision.models.ShuffleNetV2,
-)
-
-# classifier is .classifier
-MODELS_WITH_CLASSIFIER = (
-    torchvision.models.DenseNet,
-)
-
-# classifier is .linear
-MODELS_WITH_LINEAR = (
-    custom_models.cifar_resnet.ResNet
-)
-
-# classifier is .classifier[-1]
-MODELS_WITH_CLASSIFIER_LIST = (
-    torchvision.models.AlexNet,
-    torchvision.models.VGG,
-    torchvision.models.MobileNetV2,
-    torchvision.models.MNASNet,
-)
 
 
 def reduce_linear_layer(layer, n_classes, keep_weights=False):
@@ -38,6 +12,34 @@ def reduce_linear_layer(layer, n_classes, keep_weights=False):
 
 
 def replace_head(model, n_classes, keep_weights=True):
+
+    from .. import models as custom_models
+
+    # classifier is .fc
+    MODELS_WITH_FC = (
+        torchvision.models.ResNet,
+        torchvision.models.GoogLeNet,
+        torchvision.models.ShuffleNetV2,
+    )
+
+    # classifier is .classifier
+    MODELS_WITH_CLASSIFIER = (
+        torchvision.models.DenseNet,
+    )
+
+    # classifier is .linear
+    MODELS_WITH_LINEAR = (
+        custom_models.cifar_resnet.ResNet
+    )
+
+    # classifier is .classifier[-1]
+    MODELS_WITH_CLASSIFIER_LIST = (
+        torchvision.models.AlexNet,
+        torchvision.models.VGG,
+        torchvision.models.MobileNetV2,
+        torchvision.models.MNASNet,
+    )
+
     # keep_weights is for imagenet subdatasets where
     # one samples the first N
 
