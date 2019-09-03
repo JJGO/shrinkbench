@@ -26,7 +26,7 @@ def weights_path(model, path=None):
 
 
 from .head import replace_head
-from .mnistnet import mnistnet
+from .mnistnet import MnistNet
 from .cifar_resnet import (resnet20,
                            resnet32,
                            resnet44,

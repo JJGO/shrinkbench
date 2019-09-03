@@ -5,11 +5,11 @@ import torch.nn.functional as F
 from . import weights_path
 
 
-class mnistnet(nn.Module):
+class MnistNet(nn.Module):
     """Small network designed for Mnist debugging
     """
     def __init__(self, pretrained=False):
-        super(mnistnet, self).__init__()
+        super(MnistNet, self).__init__()
         self.conv1 = nn.Conv2d(1, 20, 5, 1)
         self.conv2 = nn.Conv2d(20, 50, 5, 1)
         self.fc1 = nn.Linear(4*4*50, 500)
