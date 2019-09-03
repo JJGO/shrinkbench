@@ -39,12 +39,13 @@ class PruningExperiment:
                  dl_kwargs=tuple(),
                  train_kwargs=tuple(),
                  debug=False,
-                 pretrained=True):
+                 pretrained=True,
+                 resume=None):
 
         # Data loader params
-        self.dl_kwargs = {'batch_size': 256,
+        self.dl_kwargs = {'batch_size': 128,
                           'pin_memory': True,
-                          'num_workers': 16
+                          'num_workers': 8
                           }
         self.dl_kwargs.update(dl_kwargs)
 
@@ -113,6 +114,11 @@ class PruningExperiment:
                 path = DEBUG_DIR
         self.path = pathlib.Path(path) / self.name
 
+        # Resume weights
+        self.resume = resume
+        if self.resume is not None:
+            self.resume = pathlib.Path(self.resume)
+
         ############### REPRODUCIBILITY ###############
         # Fix python, numpy, torch seeds for reproducibility
         self.seed = seed
@@ -168,6 +174,12 @@ class PruningExperiment:
             mask_module(self.model, masks)
             # apply_masks(self.model, masks)
             printc("Masked model", color='GREEN')
+
+        # Resuming from previous experiment
+        if self.resume is not None:
+            previous = torch.load(self.resume)
+            model.load(previous['model_state_dict'])
+            optim.load(previous['optim_state_dict'])
 
         # Torch CUDA config
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -257,7 +269,7 @@ class PruningExperiment:
                 acc5 += c5
                 epoch_iter.set_postfix(loss=total_loss / i, #* dl.batch_size,
                                        top1=acc1.item() / (i * dl.batch_size),
-                                       top5=acc5.item() / (i * dl.batch_size))
+4                                       top5=acc5.item() / (i * dl.batch_size))
         # TODO check loss is right
         total_loss /= len(dl) * dl.batch_size
         acc1 /= len(dl) * dl.batch_size

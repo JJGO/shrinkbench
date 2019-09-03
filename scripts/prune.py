@@ -22,8 +22,9 @@ parser.add_argument('-p', '--pruning', dest='pruning', type=float_fraction, help
 parser.add_argument('-d', '--dataset', dest='dataset', type=str, help='Dataset to train on')
 parser.add_argument('-m', '--model', dest='model', type=str, help='What CNN to use')
 # parser.add_argument('-w', '--weights', dest='weights', action='store_true', default=True, help='Use pretrained weights if possible')
-parser.add_argument('-r', '--seed', dest='seed', type=int, help='Random seed for reproducibility', default=42)
+parser.add_argument('-S', '--seed', dest='seed', type=int, help='Random seed for reproducibility', default=42)
 parser.add_argument('-P', '--path', dest='path', type=str, help='path to save', default=None)
+parser.add_argument('-r', '--resume', dest='resume', type=str, help='Checkpoint to resume from', default=None)
 parser.add_argument('-n', '--debug', dest='debug', action='store_true', default=False, help='Enable debug mode for logging')
 parser.add_argument('-D', '--dl', dest='dl_kwargs', type=json.loads, help='JSON string of DataLoader parameters', default=tuple())
 parser.add_argument('-T', '--train', dest='train_kwargs', type=json.loads, help='JSON string of Train parameters', default=tuple())
@@ -48,7 +49,8 @@ if __name__ == '__main__':
                             pretrained=args.pretrained,
                             dl_kwargs=args.dl_kwargs,
                             train_kwargs=args.train_kwargs,
-                            debug=args.debug)
+                            debug=args.debug,
+                            resume=args.resume)
 
     exp.run()
 
