@@ -12,7 +12,7 @@ def model_size(model):
 
     total_params = 0
     nonzero_params = 0
-    for param, tensor in model.state_dict().items():
+    for tensor in model.parameters():
         if True:
             total_params += np.prod(tensor.shape)
             nonzero_params += nonzero(tensor.detach().cpu().numpy())
@@ -23,7 +23,7 @@ def model_size_bits(model):
 
     total_params = 0
     nonzero_params = 0
-    for param, tensor in model.state_dict().items():
+    for tensor in model.parameters():
         total_params += np.prod(tensor.shape) * dtype2bits[tensor.dtype]
         nonzero_params += nonzero(tensor.cpu().numpy()) * dtype2bits[tensor.dtype]
     return int(total_params), int(nonzero_params)
