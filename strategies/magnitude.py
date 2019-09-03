@@ -11,49 +11,81 @@ keep only the _fraction_ with highest magnitudes.
 import numpy as np
 import torch.nn as nn
 
+from ..pruning import *
 
-class MagnitudePruning:
 
-    masked_modules = (nn.Linear, nn.Conv2d)
+def abs_threshold(tensor, fraction):
+    assert isinstance(tensor, np.ndarray)
+    # fraction to keep
+    size = np.prod(tensor.shape)
+    raveled_val = np.sort(-np.abs(tensor), axis=None)
+    threshold = np.abs(raveled_val[int(size*fraction)])
+    return threshold
 
-    def __init__(self, fraction):
-        self.fraction = fraction
 
-    def _idx(self, tensor):
-        size = np.prod(tensor.shape)
-        # Get magnitude and sort based on it
-        raveled_idx = np.argsort(-np.abs(tensor), axis=None)
-        # Prune the 1-fraction, unravel & set to 0
-        pruned_idx = raveled_idx[int(size*self.fraction):]
-        unraveled_idx = np.unravel_index(pruned_idx, tensor.shape)
-        return unraveled_idx
+def largest_abs_mask(tensor, fraction=None, threshold=None):
+    assert isinstance(tensor, np.ndarray)
+    # fraction to keep
+    assert (fraction is None) ^ (threshold is None), \
+        "Either fraction or threshold must be provided"
 
-    def mask(self, tensor):
-        unraveled_idx = self._idx(tensor)
-        mask = np.ones_like(tensor)
-        mask[unraveled_idx] = 0
-        return mask
+    if threshold is None:
+        threshold = abs_threshold(tensor, fraction)
+    idx = np.logical_and(tensor < threshold, tensor > -threshold)
+    mask = np.ones_like(tensor)
+    mask[idx] = 0
+    return mask
 
-    def prune(self, tensor, inplace=True):
-        pruned_tensor = tensor if inplace else tensor.copy()
-        unraveled_idx = self._idx(tensor)
-        pruned_tensor[unraveled_idx] = 0
 
-        return pruned_tensor
+class GlobalMagnitudePruning(Pruning):
+
+    def __init__(self, compression, prune_classifier=False):
+        super(GlobalMagnitudePruning, self).__init__(compression=compression,
+                                                     prune_classifier=prune_classifier)
+        self.masked_modules = (nn.Linear, nn.Conv2d)
+
+    def model_masks(self, model, *_):
+
+        prunable = prunable_modules(model,
+                                    self.masked_modules,
+                                    self.prune_classifier)
+        fraction = fraction_to_keep(self.compression, model, prunable)
+
+        params = {k: v for name, module in prunable.items()
+                  for k, v in get_params(module, prefix=name).items()}
+
+        flat_params = np.concatenate([v.flatten() for v in params.values()])
+        threshold = abs_threshold(flat_params, fraction)
+
+        masks = { name : { k : largest_abs_mask(v, threshold=threshold)
+                           for k, v in get_params(m).items()}
+                  for name, m in prunable.items() }
+
+        return masks
+
+
+class LayerMagnitudePruning(LayerPruning):
+
+    def __init__(self, compression, prune_classifier=False):
+        super(LayerMagnitudePruning, self).__init__(compression=compression,
+                                                    prune_classifier=prune_classifier)
+        self.masked_modules = (nn.Linear, nn.Conv2d)
 
     def module_masks(self, module):
         masks = {}
-        if isinstance(module, MagnitudePruning.masked_modules):
-            masks['weight'] = self.mask(module.weight.detach().cpu().numpy())
+        if isinstance(module, self.masked_modules):
+            params = get_params(module)
+            masks['weight'] = largest_abs_mask(params['weight'], fraction=self.fraction)
             if module.bias is not None:
-                masks['bias'] = self.mask(module.bias.detach().cpu().numpy())
+                masks['bias'] = largest_abs_mask(params['bias'], fraction=self.fraction)
         return masks
 
-    def __repr__(self):
-        return f"{self.__class__.__name__}(fraction={self.fraction})"
-
-    def __str__(self):
-        return repr(self)
-
-    def shortrepr(self):
-        return f"mag_f{str(self.fraction)[2:]}"
+    def model_masks(self, model, *_):
+        self.prunable = prunable_modules(model,
+                                         self.masked_modules,
+                                         self.prune_classifier)
+        self.fraction = fraction_to_keep(self.compression, model, self.prunable)
+        masks = super(LayerMagnitudePruning, self).model_masks(model, None, None)
+        delattr(self, 'fraction')
+        delattr(self, 'prunable')
+        return masks
