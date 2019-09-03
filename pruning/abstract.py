@@ -1,9 +1,10 @@
-from .utils import (get_modules,
-                    get_params,
+from collections import OrderedDict
+
+from .utils import (get_params,
                     get_activations,
                     get_gradients)
 
-from .mask import mask_module
+from .mask import mask_module, apply_masks
 
 
 class Pruning:
@@ -19,8 +20,8 @@ class Pruning:
         raise NotImplementedError
         # return masks
 
-    def apply(self, model, *args):
-        masks = self.model_masks(model, *args)
+    def apply(self, model, inputs=None, outputs=None):
+        masks = self.model_masks(model, inputs, outputs)
         return mask_module(model, masks)
 
     def __repr__(self):
@@ -35,9 +36,6 @@ class Pruning:
 
 
 class LayerPruning(Pruning):
-
-    def __init__(self, **pruning_params):
-        super(LayerPruning, self).__init__(**pruning_params)
 
     def module_masks(self, module):
         raise NotImplementedError
@@ -56,19 +54,34 @@ class LayerPruning(Pruning):
         This is a straight forward implementation that supports
         strategies that prune each module independently
         """
-        masks = {}
-        if hasattr(self, 'prunable'):
-            modules = self.prunable
-        else:
-            modules = get_modules(model)
+        masks = OrderedDict()
+        modules = self.prunable if hasattr(self, 'prunable') else model.modules()
 
-        for name, module in modules.items():
+        for module in modules:
             masks_ = self.module_masks(module)
             if len(masks_) > 0:
-                masks[name] = masks_
+                masks[module] = masks_
 
         return masks
 
+
+class CompoundPruning(Pruning):
+
+    def __init__(self, pruning_strategies):
+        self.pruning_strategies = pruning_strategies
+
+    def model_masks(self, model, inputs=None, outputs=None):
+        for strat in self.pruning_strategies:
+            masks = strat.model_masks(model, inputs, outputs)
+            apply_masks(model, masks)  # Operation is inplace
+        return masks
+
+    def __repr__(self):
+        s = f"{self.__class__.__name__}([\n"
+        for strat in self.pruning_strategies:
+            s += f"\t{repr(strat)}, \n"
+        s += '])'
+        return s
 
 # class WeightBasedPruning(Pruning):
 
