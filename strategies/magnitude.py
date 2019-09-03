@@ -12,29 +12,7 @@ import numpy as np
 import torch.nn as nn
 
 from ..pruning import *
-
-
-def abs_threshold(tensor, fraction):
-    assert isinstance(tensor, np.ndarray)
-    # fraction to keep
-    size = np.prod(tensor.shape)
-    raveled_val = np.sort(-np.abs(tensor), axis=None)
-    threshold = np.abs(raveled_val[int(size*fraction)])
-    return threshold
-
-
-def largest_abs_mask(tensor, fraction=None, threshold=None):
-    assert isinstance(tensor, np.ndarray)
-    # fraction to keep
-    assert (fraction is None) ^ (threshold is None), \
-        "Either fraction or threshold must be provided"
-
-    if threshold is None:
-        threshold = abs_threshold(tensor, fraction)
-    idx = np.logical_and(tensor < threshold, tensor > -threshold)
-    mask = np.ones_like(tensor)
-    mask[idx] = 0
-    return mask
+from .masks import abs_threshold, largest_abs_mask
 
 
 class GlobalMagnitudePruning(Pruning):
@@ -51,16 +29,17 @@ class GlobalMagnitudePruning(Pruning):
                                     self.prune_classifier)
         fraction = fraction_to_keep(self.compression, model, prunable)
 
-        params = {k: v for name, module in prunable.items()
-                  for k, v in get_params(module, prefix=name).items()}
+        flat_params = np.concatenate([
+            param.flatten() for module in prunable
+            for _, param in get_params(module).items()
+            ])
 
-        flat_params = np.concatenate([v.flatten() for v in params.values()])
         threshold = abs_threshold(flat_params, fraction)
 
-        masks = { name : { k : largest_abs_mask(v, threshold=threshold)
-                           for k, v in get_params(m).items()}
-                  for name, m in prunable.items() }
-
+        masks = { module :
+                  { k : largest_abs_mask(v, threshold=threshold)
+                    for k, v in get_params(module).items() }
+                  for module in prunable}
         return masks
 
 
