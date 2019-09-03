@@ -125,135 +125,31 @@ class ResNet(nn.Module):
         return out
 
 
-def resnet20(pretrained=True):
-    model = ResNet(BasicBlock, [3, 3, 3])
-    if pretrained:
-        weights = weights_path('cifar10/resnet20.th')
-        weights = torch.load(weights)['state_dict']
-        weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
+def resnet_factory(filters, num_classes, weight_file):
+    def _resnet(pretrained=True):
+        model = ResNet(BasicBlock, filters, num_classes=num_classes)
+        if pretrained:
+            weights = weights_path(weight_file)
+            weights = torch.load(weights)['state_dict']
+            # TODO have a better story for this
+            # For models trained with nn.DataParallel
+            if list(weights.keys())[0].startswith('module.'):
+                weights = { k[len("module."):] : v for k, v in weights.items()}
+            model.load_state_dict(weights)
+        return model
+    return _resnet
 
 
-def resnet32(pretrained=True):
-    model = ResNet(BasicBlock, [5, 5, 5])
-    if pretrained:
-        weights = weights_path('cifar10/resnet32.th')
-        weights = torch.load(weights)['state_dict']
-        weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
+resnet20 = resnet_factory([3, 3, 3], 10, 'resnet20.th')
+resnet32 = resnet_factory([5, 5, 5], 10, 'resnet32.th')
+resnet44 = resnet_factory([7, 7, 7], 10, 'resnet44.th')
+resnet56 = resnet_factory([9, 9, 9], 10, 'resnet56.th')
+resnet110 = resnet_factory([18, 18, 18], 10, 'resnet110.th')
+resnet1202 = resnet_factory([200, 200, 200], 10, 'resnet1202.th')
 
-
-def resnet44(pretrained=True):
-    model = ResNet(BasicBlock, [7, 7, 7])
-    if pretrained:
-        weights = weights_path('cifar10/resnet44.th')
-        weights = torch.load(weights)['state_dict']
-        weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
-
-
-def resnet56(pretrained=True):
-    model = ResNet(BasicBlock, [9, 9, 9])
-    if pretrained:
-        weights = weights_path('cifar10/resnet56.th')
-        weights = torch.load(weights)['state_dict']
-        weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
-
-
-def resnet110(pretrained=True):
-    model = ResNet(BasicBlock, [18, 18, 18])
-    if pretrained:
-        weights = weights_path('cifar10/resnet110.th')
-        weights = torch.load(weights)['state_dict']
-        weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
-
-
-def resnet1202(pretrained=True):
-    model = ResNet(BasicBlock, [200, 200, 200])
-    if pretrained:
-        weights = weights_path('cifar10/resnet1202.th')
-        weights = torch.load(weights)['state_dict']
-        weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
-
-###########################
-
-
-def resnet20_100(pretrained=True):
-    model = ResNet(BasicBlock, [3, 3, 3])
-    # Edit last layer for 100 classes output tensor
-    replace_head(model, 100, False)
-    if pretrained:
-        weights = weights_path('cifar100/resnet20.th')
-        weights = torch.load(weights)['state_dict']
-        # weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
-
-
-def resnet32_100(pretrained=True):
-    model = ResNet(BasicBlock, [5, 5, 5])
-    # Edit last layer for 100 classes output tensor
-    replace_head(model, 100, False)
-    if pretrained:
-        weights = weights_path('cifar100/resnet32.th')
-        weights = torch.load(weights)['state_dict']
-        # weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
-
-
-def resnet44_100(pretrained=True):
-    model = ResNet(BasicBlock, [7, 7, 7])
-    # Edit last layer for 100 classes output tensor
-    replace_head(model, 100, False)
-    if pretrained:
-        weights = weights_path('cifar100/resnet44.th')
-        weights = torch.load(weights)['state_dict']
-        # weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
-
-
-def resnet56_100(pretrained=True):
-    model = ResNet(BasicBlock, [9, 9, 9])
-    # Edit last layer for 100 classes output tensor
-    replace_head(model, 100, False)
-    if pretrained:
-        weights = weights_path('cifar100/resnet56.th')
-        weights = torch.load(weights)['state_dict']
-        # weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
-
-
-def resnet110_100(pretrained=True):
-    model = ResNet(BasicBlock, [18, 18, 18])
-    # Edit last layer for 100 classes output tensor
-    replace_head(model, 100, False)
-    if pretrained:
-        weights = weights_path('cifar100/resnet110.th')
-        weights = torch.load(weights)['state_dict']
-        # weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
-
-
-def resnet1202_100(pretrained=True):
-    model = ResNet(BasicBlock, [200, 200, 200])
-    # Edit last layer for 100 classes output tensor
-    replace_head(model, 100, False)
-    if pretrained:
-        weights = weights_path('cifar100/resnet1202.th')
-        weights = torch.load(weights)['state_dict']
-        # weights = { k[len("module."):] : v for k, v in weights.items()}
-        model.load_state_dict(weights)
-    return model
+resnet20_100 = resnet_factory([3, 3, 3], 100, 'resnet20_100.th')
+resnet32_100 = resnet_factory([5, 5, 5], 100, 'resnet32_100.th')
+resnet44_100 = resnet_factory([7, 7, 7], 100, 'resnet44_100.th')
+resnet56_100 = resnet_factory([9, 9, 9], 100, 'resnet56_100.th')
+resnet110_100 = resnet_factory([18, 18, 18], 100, 'resnet110_100.th')
+resnet1202_100 = resnet_factory([200, 200, 200], 100, 'resnet1202_100.th')
