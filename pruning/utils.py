@@ -6,7 +6,6 @@ from collections import OrderedDict, defaultdict
 import torch
 from torch import nn
 
-from ..metrics import model_size
 from ..models.head import get_classifier_module
 
 
@@ -143,7 +142,7 @@ def fraction_to_keep(compression, model, prunable_modules):
     # Using algrebra fraction is equal to
     # fraction = total/prunable * (1/compression - 1) + 1
     """
-
+    from ..metrics import model_size
     # return 1/compression # BYPASS FOR DEBUG
     # TODO fix for compounding
     total_size = model_size(model)[0]
