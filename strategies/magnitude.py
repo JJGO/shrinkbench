@@ -12,7 +12,7 @@ import numpy as np
 import torch.nn as nn
 
 from ..pruning import *
-from .masks import abs_threshold, largest_abs_mask
+from .utils import abs_threshold, largest_abs_mask
 
 
 class GlobalMagnitudePruning(Pruning):

@@ -11,7 +11,7 @@ import numpy as np
 import torch.nn as nn
 
 from ..pruning import *
-from .masks import largest_norm_channel_mask, largest_norm_activation_mask
+from .utils import largest_norm_channel_mask, largest_norm_activation_mask
 
 
 # TODO Channel pruning does not propagage zeroing out stuff
@@ -20,10 +20,12 @@ from .masks import largest_norm_channel_mask, largest_norm_activation_mask
 
 class WeightNormChannelPruning(LayerPruning):
 
-    def __init__(self, compression, prune_linear=True):
+    def __init__(self, compression, norm=1, prune_linear=True):
         super(WeightNormChannelPruning, self).__init__(
             compression=compression,
+            norm=norm,
             prune_linear=prune_linear)
+
         self.masked_modules = (nn.Conv2d,)
         if self.prune_linear:
             self.masked_modules += (nn.Linear,)
@@ -32,7 +34,9 @@ class WeightNormChannelPruning(LayerPruning):
         masks = {}
         if isinstance(module, self.masked_modules):
             params = get_params(module)
-            masks['weight'] = largest_norm_channel_mask(params['weight'], fraction=self.fraction)
+            masks['weight'] = largest_norm_channel_mask(params['weight'],
+                                                        self.fraction,
+                                                        self.norm)
             if module.bias is not None:
                 # Mask associated bias
                 axes = tuple(range(len(params['weight'].shape)))[1:]
@@ -52,10 +56,12 @@ class WeightNormChannelPruning(LayerPruning):
 
 class ActivationNormChannelPruning(LayerPruning):
 
-    def __init__(self, compression, prune_linear=True):
+    def __init__(self, compression, norm=1, prune_linear=True):
         super(ActivationNormChannelPruning, self).__init__(
             compression=compression,
+            norm=norm,
             prune_linear=prune_linear)
+
         self.masked_modules = (nn.Conv2d,)
         if self.prune_linear:
             self.masked_modules += (nn.Linear,)
@@ -68,7 +74,8 @@ class ActivationNormChannelPruning(LayerPruning):
 
             masks['weight'] = largest_norm_activation_mask(params['weight'],
                                                            out_activation,
-                                                           fraction=self.fraction)
+                                                           self.fraction,
+                                                           self.norm)
             if module.bias is not None:
                 # Mask associated bias
                 axes = tuple(range(len(params['weight'].shape)))[1:]
