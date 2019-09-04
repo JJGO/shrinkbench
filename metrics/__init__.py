@@ -38,3 +38,4 @@ dtype2bits = {
 
 from .size import model_size, model_size_bits
 from .accuracy import accuracy, correct
+from .memory import memory_size

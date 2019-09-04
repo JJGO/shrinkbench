@@ -8,6 +8,7 @@ import numpy as np
 from . import nonzero, dtype2bits
 
 
+# TODO refactor into one function and have bitsize as flag
 def model_size(model):
 
     total_params = 0
