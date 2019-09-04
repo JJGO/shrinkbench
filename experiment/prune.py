@@ -18,9 +18,17 @@ from . import fix_seed
 from .. import strategies
 from .. import models
 from ..datasets import train_val_datasets
-from ..metrics import model_size, correct
-from ..pruning import mask_module, compute_masks
+from ..metrics import model_size, correct, memory_size
 from ..util import CSVLogger
+
+from ..strategies import *
+shortrepr = {
+    RandomPruning: 'grnd',
+    LayerMagnitudePruning: 'lmag',
+    GlobalMagnitudePruning: 'gmag',
+    ActivationNormChannelPruning: 'achn',
+    WeightNormChannelPruning: 'wchn',
+}
 
 RESULTS_DIR = pathlib.Path('../results')
 DEBUG_DIR = pathlib.Path('../debug')
@@ -31,7 +39,7 @@ class PruningExperiment:
 
     def __init__(self,
                  strategy,
-                 pruning,
+                 compression,
                  dataset,
                  model,
                  seed=42,
@@ -67,14 +75,14 @@ class PruningExperiment:
         ############### PRUNING STRATEGY ###############
         if strategy is not None:
             # Load strategy
-            self.pruning = pruning
+            self.compression = compression
             if isinstance(strategy, str):
-                strategy = getattr(strategies, strategy)(pruning)
+                strategy = getattr(strategies, strategy)(compression)
             self.strategy = strategy
         else:
             # We are just finetuning/pretraining model
             self.strategy = None
-            self.pruning = None
+            self.compression = None
 
         ############### DATASET ###############
 
@@ -99,7 +107,7 @@ class PruningExperiment:
                 raise ValueError(f"Model {model} not available in custom models or torchvision models")
         self.model = model
 
-        strat = self.strategy.shortrepr() if self.strategy is not None else "train"
+        strat = shortrepr[strategy.__class__] if self.strategy is not None else "train"
         # Experiment name and folder
         self.name = f"{self.dataset}_" + \
                     f"{self.model_name}_" + \
@@ -169,10 +177,7 @@ class PruningExperiment:
         # Prune it based on strategy
         if self.strategy is not None:
             print("Masking model")
-            # masked_module(self.model, self.strategy)
-            masks = compute_masks(self.model, self.strategy)
-            mask_module(self.model, masks)
-            # apply_masks(self.model, masks)
+            self.strategy.apply(self.model)
             printc("Masked model", color='GREEN')
 
         # Resuming from previous experiment
@@ -210,6 +215,7 @@ class PruningExperiment:
                 self.csvlogger.update()
 
                 # Checkpoint epochs
+                # TODO Model checkpointing based on best val loss/acc
                 torch.save({
                     'model_state_dict': self.model.state_dict(),
                     'optim_state_dict': self.optim.state_dict()
@@ -269,7 +275,7 @@ class PruningExperiment:
                 acc5 += c5
                 epoch_iter.set_postfix(loss=total_loss / i, #* dl.batch_size,
                                        top1=acc1.item() / (i * dl.batch_size),
-4                                       top5=acc5.item() / (i * dl.batch_size))
+                                       top5=acc5.item() / (i * dl.batch_size))
         # TODO check loss is right
         total_loss /= len(dl) * dl.batch_size
         acc1 /= len(dl) * dl.batch_size
@@ -285,8 +291,6 @@ class PruningExperiment:
             f'{prefix.lower()}_acc1': acc1,
             f'{prefix.lower()}_acc5': acc5,
         })
-
-        # TODO Model checkpointing based on best val loss/acc
 
         return loss, acc1, acc5
 
@@ -306,8 +310,9 @@ class PruningExperiment:
         metrics['compression_ratio'] = size / size_nz
 
         # Memory Footprint
-        # TODO
-        memory, memory_nz = -1, -1
+        x, y = next(iter(self.val_dl))
+        x, y = x.to(self.device), y.to(self.device)
+        memory, memory_nz = memory_size(self.model, x)
         metrics['memory'] = memory
         metrics['memory_nz'] = memory_nz
 
@@ -329,7 +334,7 @@ class PruningExperiment:
     def __repr__(self):
         return f"PruningExperiment(" + \
                f"strategy={self.strategy.__class__.__name__}, " + \
-               f"pruning={self.pruning}, " + \
+               f"compression={self.compression}, " + \
                f"dataset={self.dataset}, " + \
                f"model={self.model_name}, " + \
                f"dl_kwargs={repr(self.dl_kwargs)}, " + \
