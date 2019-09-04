@@ -40,6 +40,9 @@ class LinearMasked(nn.Module):
             self.bias.data.mul_(self.bias_mask)
             assert self.bias is not None
 
+        self.in_features = linear_layer.in_features
+        self.out_features = linear_layer.out_features
+
     def forward(self, input):
         weight = self.weight * self.weight_mask
         if self.bias_mask is not None:
@@ -48,7 +51,14 @@ class LinearMasked(nn.Module):
             bias = self.bias
         return F.linear(input, weight, bias)
 
+    def __repr__(self):
+        s = f"{self.__class__.__name__}("
+        s += f'in_features={self.in_features}, '
+        s += f'out_features={self.out_features}, '
+        s += f'bias={self.bias is not None})'
+        return s
 
+# TODO inherit from nn.conv._ConvNd
 class Conv2dMasked(nn.Module):
 
     def __init__(self, conv_layer, weight_mask, bias_mask=None):
@@ -70,7 +80,8 @@ class Conv2dMasked(nn.Module):
             self.bias.data.mul_(self.bias_mask)
             assert self.bias is not None
 
-        for attr in ['dilation', 'stride', 'padding', 'padding_mode', 'groups']:
+        for attr in ['in_channels', 'out_channels', 'kernel_size', 'dilation',
+                     'stride', 'padding', 'padding_mode', 'groups']:
             setattr(self, attr, getattr(conv_layer, attr))
 
     def forward(self, input):
@@ -89,7 +100,22 @@ class Conv2dMasked(nn.Module):
         return F.conv2d(input, weight, bias, self.stride,
                         self.padding, self.dilation, self.groups)
 
-# TODO Conv1D Conv3D
+    def __repr__(self):
+        s = f"{self.__class__.__name__}("
+        s += ('{in_channels}, {out_channels}, kernel_size={kernel_size}'
+              ', stride={stride}')
+        if self.padding != (0,) * len(self.padding):
+            s += ', padding={padding}'
+        if self.dilation != (1,) * len(self.dilation):
+            s += ', dilation={dilation}'
+        if self.groups != 1:
+            s += ', groups={groups}'
+        if self.bias is None:
+            s += ', bias=False'
+        s += ')'
+        return s.format(**self.__dict__)
+
+# TODO Conv1D Conv3D ConvTranspose
 # TODO mask batchnorm for completion sake
 # squeeze out Convs for channel pruning
 
