@@ -38,10 +38,10 @@ TENSORBOARD_DIR = pathlib.Path('../tblogs')
 class PruningExperiment:
 
     def __init__(self,
-                 strategy,
-                 compression,
                  dataset,
                  model,
+                 strategy,
+                 compression,
                  seed=42,
                  path=None,
                  dl_kwargs=tuple(),
@@ -51,8 +51,9 @@ class PruningExperiment:
                  resume=None):
 
         # Data loader params
+        # TODO Look into why pin_memory seems to decrease performance for all data-model combinations
         self.dl_kwargs = {'batch_size': 128,
-                          'pin_memory': True,
+                          'pin_memory': False,
                           'num_workers': 8
                           }
         self.dl_kwargs.update(dl_kwargs)
@@ -63,10 +64,8 @@ class PruningExperiment:
                              }
         self.train_kwargs.update(train_kwargs)
 
-        if dataset.startswith('ImageNet'):
-            self.dl_kwargs['pin_memory'] = False
-
         # Log all params for reproducibility
+        # TODO Fix the locals() so that it does not produce '"foobar"' strings
         params = {k: repr(v) for k, v in locals().items() if k != 'self'}
         params['dl_kwargs'] = self.dl_kwargs
         params['train_kwargs'] = self.train_kwargs
@@ -80,9 +79,9 @@ class PruningExperiment:
                 strategy = getattr(strategies, strategy)(compression)
             self.strategy = strategy
         else:
-            # We are just finetuning/pretraining model
+            assert compression == 1
             self.strategy = None
-            self.compression = None
+            self.compression = 1
 
         ############### DATASET ###############
 
@@ -112,6 +111,7 @@ class PruningExperiment:
         self.name = f"{self.dataset}_" + \
                     f"{self.model_name}_" + \
                     f"{strat}_" + \
+                    f"Z{self.compression}_" + \
                     f"R{seed}_" + \
                     f"{uid()}"
 
@@ -223,7 +223,7 @@ class PruningExperiment:
 
         except KeyboardInterrupt:
             printc(f"Interrupted at epoch {epoch}", color='RED')
-
+            # TODO, allow SIGINT to edit num_epochs
 
         #### Post-finetuning ####
         # Save Model
@@ -312,7 +312,7 @@ class PruningExperiment:
         # Memory Footprint
         x, y = next(iter(self.val_dl))
         x, y = x.to(self.device), y.to(self.device)
-        memory, memory_nz = memory_size(self.model, x)
+        memory, memory_nz = -1, -1
         metrics['memory'] = memory
         metrics['memory_nz'] = memory_nz
 
