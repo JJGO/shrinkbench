@@ -18,7 +18,7 @@ def jsonfile(file):
 parser = argparse.ArgumentParser(description='Train a [pruned] Vision Net and finetune it')
 
 parser.add_argument('-s', '--strategy', dest='strategy', type=str, help='Pruning strategy', default=None)
-parser.add_argument('-c', '--compression', dest='compression', type=int, help='Pruning Strategy', default=None)
+parser.add_argument('-c', '--compression', dest='compression', type=int, help='Pruning Strategy', default=1)
 parser.add_argument('-d', '--dataset', dest='dataset', type=str, help='Dataset to train on')
 parser.add_argument('-m', '--model', dest='model', type=str, help='What CNN to use')
 # parser.add_argument('-w', '--weights', dest='weights', action='store_true', default=True, help='Use pretrained weights if possible')
@@ -40,10 +40,10 @@ if __name__ == '__main__':
 
     from flor.experiment import PruningExperiment
 
-    exp = PruningExperiment(strategy=args.strategy,
-                            compression=args.compression,
-                            dataset=args.dataset,
+    exp = PruningExperiment(dataset=args.dataset,
                             model=args.model,
+                            strategy=args.strategy,
+                            compression=args.compression,
                             seed=args.seed,
                             path=args.path,
                             pretrained=args.pretrained,
