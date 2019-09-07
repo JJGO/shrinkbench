@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from .utils import (get_params,
                     get_activations,
-                    get_gradients)
+                    get_param_gradients)
 
 from .mask import mask_module, apply_masks
 
@@ -41,21 +41,22 @@ class LayerPruning(Pruning):
         raise NotImplementedError
         # return masks
 
-    def model_masks(self, model, inputs, outputs):
-        self.params = get_params(model)
+    def model_masks(self, model, prunable=None):
+        # self.params = get_params(model)
 
-        if inputs is not None:
-            self.activations = get_activations(model, inputs)
+        # if inputs is not None:
+        #     self.activations = get_activations(model, inputs)
 
-            if outputs is not None:
-                self.gradients = get_gradients(model, inputs, outputs)
+        #     if outputs is not None:
+        #         # TODO fix to return also input, output gradients
+        #         self.gradients = get_param_gradients(model, inputs, outputs)
 
         """Compute masks using the said strategy for every module
         This is a straight forward implementation that supports
         strategies that prune each module independently
         """
         masks = OrderedDict()
-        modules = self.prunable if hasattr(self, 'prunable') else model.modules()
+        modules = prunable if prunable is not None else model.modules()
 
         for module in modules:
             masks_ = self.module_masks(module)
@@ -82,39 +83,3 @@ class CompoundPruning(Pruning):
             s += f"\t{repr(strat)}, \n"
         s += '])'
         return s
-
-# class WeightBasedPruning(Pruning):
-
-#     def __init__(self, model, **pruning_params):
-#         super(WeightBasedPruning, self).__init__(model, **pruning_params)
-
-#     def model_masks(self, model, *_):
-
-#         params = get_params(model)
-#         raise NotImplementedError
-#         # return masks
-
-
-# class ActivationBasedPruning(Pruning):
-
-#     def __init__(self, model, **pruning_params):
-#         super(ActivationBasedPruning, self).__init__(model, **pruning_params)
-
-#     def model_masks(self, model, inputs, *_):
-#         params = get_params(model)
-#         activations = get_activations(model, inputs)
-#         raise NotImplementedError
-#         # return masks
-
-
-# class GradientBasedPruning(Pruning):
-
-#     def __init__(self, model, **pruning_params):
-#         super(GradientBasedPruning, self).__init__(model, **pruning_params)
-
-#     def model_masks(self, model, inputs, outputs):
-#         params = get_params(model)
-#         activations = get_activations(model, inputs)
-#         gradients = get_gradients(model, inputs, outputs)
-#         raise NotImplementedError
-#         # return masks
