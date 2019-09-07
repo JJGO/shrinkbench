@@ -25,6 +25,7 @@ parser.add_argument('-m', '--model', dest='model', type=str, help='What CNN to u
 parser.add_argument('-S', '--seed', dest='seed', type=int, help='Random seed for reproducibility', default=42)
 parser.add_argument('-P', '--path', dest='path', type=str, help='path to save', default=None)
 parser.add_argument('-r', '--resume', dest='resume', type=str, help='Checkpoint to resume from', default=None)
+parser.add_argument('--resume-optim', dest='resume_optim', action='store_true', default=False, help='Resume also optim')
 parser.add_argument('-n', '--debug', dest='debug', action='store_true', default=False, help='Enable debug mode for logging')
 parser.add_argument('-D', '--dl', dest='dl_kwargs', type=json.loads, help='JSON string of DataLoader parameters', default=tuple())
 parser.add_argument('-T', '--train', dest='train_kwargs', type=json.loads, help='JSON string of Train parameters', default=tuple())
@@ -50,7 +51,8 @@ if __name__ == '__main__':
                             dl_kwargs=args.dl_kwargs,
                             train_kwargs=args.train_kwargs,
                             debug=args.debug,
-                            resume=args.resume)
+                            resume=args.resume,
+                            resume_optim=args.resume_optim)
 
     exp.run()
 
