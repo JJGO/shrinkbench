@@ -26,12 +26,15 @@ shortrepr = {
     RandomPruning: 'grnd',
     LayerMagnitudePruning: 'lmag',
     GlobalMagnitudePruning: 'gmag',
+    LayerGradMagnitudePruning: 'lmagd',
+    GlobalGradMagnitudePruning: 'gmagd',
+    LayerActivationMagnitudePruning: 'lmaga',
+    GlobalActivationMagnitudePruning: 'gmaga',
     ActivationNormChannelPruning: 'achn',
     WeightNormChannelPruning: 'wchn',
 }
 
 RESULTS_DIR = pathlib.Path('../results')
-DEBUG_DIR = pathlib.Path('../debug')
 TENSORBOARD_DIR = pathlib.Path('../tblogs')
 
 
@@ -48,7 +51,8 @@ class PruningExperiment:
                  train_kwargs=tuple(),
                  debug=False,
                  pretrained=True,
-                 resume=None):
+                 resume=None,
+                 resume_optim=False):
 
         # Data loader params
         # TODO Look into why pin_memory seems to decrease performance for all data-model combinations
@@ -105,6 +109,7 @@ class PruningExperiment:
             else:
                 raise ValueError(f"Model {model} not available in custom models or torchvision models")
         self.model = model
+        self.pretrained = pretrained
 
         strat = shortrepr[strategy.__class__] if self.strategy is not None else "train"
         # Experiment name and folder
@@ -116,16 +121,17 @@ class PruningExperiment:
                     f"{uid()}"
 
         if path is None:
-            if not debug:
-                path = RESULTS_DIR
-            else:
-                path = DEBUG_DIR
+            path = RESULTS_DIR
+            if debug:
+                path /= 'debug'
         self.path = pathlib.Path(path) / self.name
 
         # Resume weights
         self.resume = resume
+        self.resume_optim = resume_optim
         if self.resume is not None:
             self.resume = pathlib.Path(self.resume)
+
 
         ############### REPRODUCIBILITY ###############
         # Fix python, numpy, torch seeds for reproducibility
@@ -141,8 +147,8 @@ class PruningExperiment:
             json.dump(self.params, f, indent=4)
 
         # Tensorboard logs
-        tb_logdir = TENSORBOARD_DIR / self.name
-        self.tb_writer = SummaryWriter(log_dir=tb_logdir.as_posix())
+        #tb_logdir = TENSORBOARD_DIR / self.name
+        #self.tb_writer = SummaryWriter(log_dir=tb_logdir.as_posix())
 
         # CSV logs
         self.csvlogger = CSVLogger(self.path / 'finetuning.csv',
@@ -173,18 +179,25 @@ class PruningExperiment:
         #### Pre-pruning ####
         # Get model, compute metrics before pruning
 
+        # Resuming from previous experiment
+        if self.resume is not None:
+            previous = torch.load(self.resume)
+            if self.resume_optim:
+                self.model.load_state_dict(previous['model_state_dict'])
+                self.optim.load_state_dict(previous['optim_state_dict'])
+            else:
+                self.model.load_state_dict(previous)
+
+        # TODO: as of now, when resuming, strategy must be set to none and compression too
+        # Differentitate between --resume and --weights!
+
         #### Pruning ####
         # Prune it based on strategy
         if self.strategy is not None:
             print("Masking model")
-            self.strategy.apply(self.model)
+            inputs, outputs = next(iter(self.train_dl))
+            self.strategy.apply(self.model, inputs, outputs)
             printc("Masked model", color='GREEN')
-
-        # Resuming from previous experiment
-        if self.resume is not None:
-            previous = torch.load(self.resume)
-            model.load(previous['model_state_dict'])
-            optim.load(previous['optim_state_dict'])
 
         # Torch CUDA config
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -219,7 +232,7 @@ class PruningExperiment:
                 torch.save({
                     'model_state_dict': self.model.state_dict(),
                     'optim_state_dict': self.optim.state_dict()
-                    }, self.path / f'checkpoint-{epoch}.pt')
+                }, self.path / f'checkpoint-{epoch}.pt')
 
         except KeyboardInterrupt:
             printc(f"Interrupted at epoch {epoch}", color='RED')
@@ -239,7 +252,7 @@ class PruningExperiment:
         self.metrics = metrics
 
         # Logging Teardown
-        self.tb_writer.close()
+        #self.tb_writer.close()
         self.csvlogger.close()
 
     def run_epoch(self, train, epoch=0):
@@ -282,9 +295,9 @@ class PruningExperiment:
         acc5 /= len(dl) * dl.batch_size
 
         # Tensorboard logging
-        self.tb_writer.add_scalar(f'{prefix} Loss', loss, epoch)
-        self.tb_writer.add_scalar(f'{prefix} Acc1', acc1, epoch)
-        self.tb_writer.add_scalar(f'{prefix} Acc5', acc5, epoch)
+        #self.tb_writer.add_scalar(f'{prefix} Loss', loss, epoch)
+        #self.tb_writer.add_scalar(f'{prefix} Acc1', acc1, epoch)
+        #self.tb_writer.add_scalar(f'{prefix} Acc5', acc5, epoch)
 
         self.csvlogger.set(**{
             f'{prefix.lower()}_loss': loss,
@@ -340,7 +353,10 @@ class PruningExperiment:
                f"dl_kwargs={repr(self.dl_kwargs)}, " + \
                f"train_kwargs={repr(self.train_kwargs)}, " + \
                f"seed={self.seed}, " + \
-               f"path={self.path.as_posix()}" + \
+               f"path={self.path.as_posix()}, " + \
+               f"pretrained={self.pretrained}, " + \
+               f"resume={self.resume}, " + \
+               f"resume_optim={self.resume_optim}" + \
                f")"
 
     # TODO TO LOAD PREVIOUS EXPS
