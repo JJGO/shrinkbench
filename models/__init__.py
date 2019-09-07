@@ -39,3 +39,5 @@ from .cifar_resnet import (resnet20_100,
                            resnet56_100,
                            resnet110_100,
                            resnet1202_100)
+
+from .cifar_vgg import vgg_bn_drop

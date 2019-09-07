@@ -99,6 +99,7 @@ def get_classifier_module(model):
         torchvision.models.VGG,
         torchvision.models.MobileNetV2,
         torchvision.models.MNASNet,
+        custom_models.cifar_vgg.VGGBnDrop,
     )
 
     if isinstance(model, MODELS_WITH_FC):
