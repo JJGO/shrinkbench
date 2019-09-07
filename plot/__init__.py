@@ -1,5 +1,6 @@
 import json
 import pathlib
+import string
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,11 +10,48 @@ COLUMNS = ['dataset', 'model', 'strategy', 'compression',
            'size', 'size_nz', 'real_compression',
            'memory', 'memory_nz',
            'flops', 'flops_nz', 'speedup',
-           'completed', 'seed', 'epochs', 'path']
-# STRATEGIES = ['MagnitudePruning', 'ChannelPruning', 'RandomPruning']
+           'completed', 'seed',
+           'batch_size', 'epochs', 'optim', 'lr',
+           'resume',
+           'path']
 CMAP = plt.get_cmap('Set1')
 
-color_idx = 0
+
+class AutoMap:
+
+    def __init__(self, objects):
+        self.mapping = {}
+        self.idx = 0
+        self.objects = objects
+
+    def __getitem__(self, key):
+        if key not in self.mapping:
+            self.mapping[key] = self.objects[self.idx]
+            self.idx += 1
+        return self.mapping[key]
+
+    def __repr__(self):
+        return repr(self.mapping)
+
+
+colors = AutoMap(CMAP.colors)
+
+
+class AutoMap:
+
+    def __init__(self, objects):
+        self.mapping = {}
+        self.idx = 0
+        self.objects = objects
+
+    def __getitem__(self, key):
+        if key not in self.mapping:
+            self.mapping[key] = self.objects[self.idx]
+            self.idx += 1
+        return self.mapping[key]
+
+    def __repr__(self):
+        return repr(self.mapping)
 
 
 def df_from_results(results_path, glob='*'):
@@ -37,6 +75,9 @@ def df_from_results(results_path, glob='*'):
             # best finetuning val acc {top1, top5}
             if params['train_kwargs']['epochs'] > 0:
                 finetuning = pd.read_csv(exp / 'finetuning.csv')
+                if eval(params['dataset']).startswith('ImageNet'):
+                    # TODO remove this constraint
+                    finetuning = finetuning[finetuning['epoch'] <= 20]
                 row += [finetuning['val_acc1'].max(), finetuning['val_acc5'].max()]
             else:
                 assert 'post' in metrics
@@ -51,32 +92,45 @@ def df_from_results(results_path, glob='*'):
             # flops
             row += [metrics['flops'], metrics['flops_nz'], metrics['flops']/metrics['flops_nz']]
             # completed, Random Seed, epochs, experiment path
-            row += [completed, params['seed'], params['train_kwargs']['epochs'], str(exp)]
-
+            row += [completed, eval(params['seed'])]
+            row += [params['dl_kwargs']['batch_size'],
+                    params['train_kwargs']['epochs'],
+                    params['train_kwargs']['optim'],
+                    params['train_kwargs']['lr']]
+            row += [None if 'resume' not in params else eval(params['resume'])]
+            row += [str(exp)]
             results.append(row)
+
     return pd.DataFrame(data=results, columns=COLUMNS)
 
 
-def plot_acc_compression_strategy(df, strat, i, top=1, pre=False, prefix=""):
+def plot_acc_compression_strategy(df, strat, top=1, pre=False, prefix="", diff=False):
+    global colors
     strat_df = df[(df['strategy'] == strat) | df['strategy'].isna()].sort_values('compression', ascending=False)
     strat_df = strat_df.drop(columns=['completed'])
     mean = strat_df.groupby('compression', as_index=False).mean()
     std = strat_df.groupby('compression', as_index=False).std()
-
+    strat_nick = "".join(c for c in strat if c not in string.ascii_lowercase)  # strat[:4]
+    pre_acc = mean[f"pre_acc{top}"]
+    post_acc = mean[f"post_acc{top}"]
+    if diff:
+        pre_acc = -(pre_acc - pre_acc[0])
+        post_acc = -(post_acc - post_acc[0])
     if pre:
-        plt.plot(mean['real_compression'], mean[f"pre_acc{top}"], ls='--', marker='.',
-                 label=f"{prefix}{strat[:4]} Pre", color=CMAP.colors[i])
-    plt.errorbar(mean['real_compression'], mean[f"post_acc{top}"], ls='-', marker='.',
-                 label=f"{prefix}{strat[:4]} Post", color=CMAP.colors[i], yerr=std[f"post_acc{top}"])
+        plt.plot(mean['real_compression'], pre_acc, ls='--', marker='.',
+                 label=f"{prefix}{strat_nick} Pre", color=colors[strat_nick])
+    plt.errorbar(mean['real_compression'], post_acc, ls='-', marker='.',
+                 label=f"{prefix}{strat_nick} Post", color=colors[strat_nick], yerr=std[f"post_acc{top}"])
 
 
-def plot_acc_compression(df, base_acc=0.1, top=1, pre=False, fig=True, prefix=""):
+def plot_acc_compression(df, base_acc=0.1, top=1, pre=False, fig=True, prefix="", delta=False):
     global color_idx
     if fig:
-        color_idx = 0
+        # color_idx = 0
         plt.figure(figsize=(15, 8))
 
-    plt.axhline(base_acc, ls='-.', color='gray')
+    if not delta:
+        plt.axhline(base_acc, ls='-.', color='gray')
 
     assert len(set(df['dataset'])) == 1, "More than one dataset in datataframe"
     assert len(set(df['model'])) == 1, "More than one model in datataframe"
@@ -84,10 +138,10 @@ def plot_acc_compression(df, base_acc=0.1, top=1, pre=False, fig=True, prefix=""
     strategies = [s for s in set(df['strategy']) if s is not None]
 
     for s in sorted(strategies):
-        plot_acc_compression_strategy(df, s, color_idx, top, pre, prefix)
-        color_idx += 1
+        plot_acc_compression_strategy(df, s, top, pre, prefix, delta)
+        # color_idx += 1
 
-    plt.ylabel('Accuracy')
+    plt.ylabel('Accuracy' if not delta else 'Decrease in Accuracy')
     plt.xlabel('Compression')
     plt.xscale('log')
     ticks = sorted(set(df['compression']))
@@ -105,9 +159,10 @@ def plot_error_compression_strategy(df, strat, i, prefix="", ls='-'):
     mean = strat_df.groupby('compression', as_index=False).mean()
     # std = strat_df.groupby('compression', as_index=False).std()
     desired_compression = mean['compression']
+    strat_nick = "".join(c for c in strat if c in string.ascii_uppercase)  # strat[:4]
     relative_error = (mean['real_compression']-desired_compression)/desired_compression
     plt.plot(desired_compression, relative_error*100, ls=ls, marker='o',
-             color=CMAP.colors[i], label=f"{prefix}{strat[:5]}")
+             color=CMAP.colors[i], label=f"{prefix}{strat_nick}")
 
 
 def plot_error_compression(df, fig=True, prefix="", ls='-'):
