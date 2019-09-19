@@ -12,8 +12,8 @@ def memory_size(model, input):
     activations = get_activations(model, input)
 
     # The ones we need for backprop
-    output_activations = [o for _, (i, o) in activations.items()]
-    for act in output_activations:
+    input_activations = [i for _, (i, o) in activations.items()]
+    for act in input_activations:
         total_memory += np.prod(act.shape)
         nonzero_memory += nonzero(act)
 
