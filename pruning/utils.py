@@ -28,6 +28,7 @@ def hook_applyfn(hook, model, forward=False, backward=False):
                 hooks.append(module.register_forward_hook(hook))
             if backward:
                 hooks.append(module.register_backward_hook(hook))
+
     return register_hook, hooks
 
 

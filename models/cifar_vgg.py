@@ -98,3 +98,13 @@ def vgg_bn_drop(pretrained=True):
     # else:
         # model.reset_weights()
     return model
+
+
+def vgg_bn_drop_100(pretrained=True):
+    model = VGGBnDrop(num_classes=100)
+    if pretrained:
+        weights = weights_path('vgg_bn_drop_100.pt')
+        model.load_state_dict(torch.load(weights))
+    # else:
+        # model.reset_weights()
+    return model
