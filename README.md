@@ -1,2 +1,4 @@
-# flor
-Benchmark framwork for neural network pruning
+# ShrinkBench
+Benchmark framework for neural network pruning
+
+Documentation coming soon!
