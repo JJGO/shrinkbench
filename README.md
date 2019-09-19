@@ -1,4 +1,4 @@
 # ShrinkBench
-Benchmark framework for neural network pruning
+Benchmark library for neural network pruning written in PyTorch
 
 Documentation coming soon!
