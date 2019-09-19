@@ -60,11 +60,10 @@ class LayerMagnitudePruning(LayerPruning):
         return masks
 
     def model_masks(self, model, *_):
-        self.prunable = prunable_modules(model,
-                                         self.masked_modules,
-                                         self.prune_classifier)
-        self.fraction = fraction_to_keep(self.compression, model, self.prunable)
-        masks = super(LayerMagnitudePruning, self).model_masks(model, None, None)
+        prunable = prunable_modules(model,
+                                    self.masked_modules,
+                                    self.prune_classifier)
+        self.fraction = fraction_to_keep(self.compression, model, prunable)
+        masks = super(LayerMagnitudePruning, self).model_masks(model, prunable=prunable)
         delattr(self, 'fraction')
-        delattr(self, 'prunable')
         return masks
