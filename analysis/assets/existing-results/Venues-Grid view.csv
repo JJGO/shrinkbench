@@ -1,0 +1,20 @@
+﻿Name,Notes,Papers,Field 5
+arXiv,,"lottery-ticket-followup,mit-coreset-pruning,samsung-winograd-sparse,google-state-of-sparsity,autopruner,pcas,balanced-sparsity,spectral-pruning,smallify,dai-info-bottleneck,lstm-group-lasso,openai-block-sparse,block-sparse-rnns,memory-bounded-convnets,pan-dropneuron,net-trimming-apoz,course-pruning,babu-generalized-dropout,google-interchannel,net-trim-v2,L0-arm-binary,samsung-differentiable",22
+NIPS,,"zhuang-discriminative-channel,net-trim,runtime-neural-pruning,hard-concrete,bayesian-compression,structured-log-normal,optimal-brain-damage,early-brain-damage,exploit-linear-structure,learning-both,ssl,net-surgery,perforated-cnns,learning-num-neurons,compression-aware-training,synaptic-strength",16
+ICLR,,"SNIP,rethinking-net-pruning,lottery-ticket,rethinking-smaller-norm,lempitsky-cp-decomp,han-prune-quant-huff,divnet,samsung-vbmf-tucker,welling-slow-quantize+prune,pruning-filters,nvidia-taylor-pruning",11
+CVPR,,"learning-compression,nisp,channel-lasso-lstsq,network-slimming,more-is-less,liu-sparse-conv,lempitsky-fast-convnets,sze-energy-aware,thinet-channel-norms",9
+ICML,,"peng-collaborative,local-competition,eigenDamage,sparse-variational-dropout",4
+ECCV,,"sss,uiuc-coreset-pruning,extreme-net-compress,amc-automl-han",4
+BMVC,British Machine Vision Conference,"jaderberg-low-rank-conv,babu-data-free-pruning,babu-learning-architecture",3
+IEEE Access,,"face-prune,crossbar-aware",2
+Nature Communications,,sparse-evolutionary,1
+OpenReview,,apple-pfa,1
+IJCAI,,soft-filter-pruning,1
+WACV,,huang-prune-filters,1
+ICNN,IEEE Intenational Conference on Neural Networks,optimal-brain-surgeon,1
+ICASSP,,he-reshaping,1
+TPAMI,IEEE transactions on pattern analysis and machine intelligence,zhang-accel-very-deep,1
+Neurocomputing,,group-sparse-dnns,1
+CVPR Workshops,,babu-training-sparse,1
+AAAI,,ding-auto-balanced,1
+MM,,,0

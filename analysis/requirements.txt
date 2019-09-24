@@ -1,0 +1,8 @@
+numpy==1.16.2
+scipy==1.2.1
+pandas==0.24.2
+matplotlib==3.0.3
+seaborn==0.9.0
+bibtexparser==1.1.0
+networkx==2.3
+scholarly==0.2.5

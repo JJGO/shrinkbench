@@ -1,0 +1,257 @@
+﻿Name,Notes,Year,Month,Source,Results,Count,OrigMParams,OrigGFLOPS,Datasets
+???,,,,,"117,175,276,346,361,369,37,246",8,,3,"MNIST, 1990 Handwritten Digits, Various Segmentation Datasets, ???, CIFAR-10, LFW, CIFAR-10, ImageNet"
+AlexNet,,2012,,"@inproceedings{krizhevsky2012imagenet,
+  title={Imagenet classification with deep convolutional neural networks},
+  author={Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey E},
+  booktitle={Advances in neural information processing systems},
+  pages={1097--1105},
+  year={2012}
+}","44,102,138,140,174,199,201,241,260,282,324,410,411,414,415,416,417,418,447,371,545,546",22,,"1, 0, 1, 1, 1, 1, 1, 1, 0","ImageNet, ImageNet, CUB200-2011, Indoor-67-balanced, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet"
+AlexNet-b,"fc layer size of 1024, stride=2 instead of pooling",,,SNIP,"4,16",2,,,"CIFAR-10, Tiny ImageNet"
+AlexNet-s,"fc layer size of 512, stride=2 instead of pooling",,,SNIP,"3,15",2,,,"CIFAR-10, Tiny ImageNet"
+AmoebaNet-A,,2019,,Real et al.,,0,,,
+AmoebaNet-C,,2019,,Cubuk et al.,,0,,,
+autoenc-fc128-64-128,,,,,332,1,,,MNIST
+Bi-LSTM-1024,,,,,71,1,,,TIMIT
+BiDaF,,,,(Seo et al. (2017),100,1,,,SQuaD
+BN-Inception,"apparently a variation of GoogLeNet (Szegedy et al., 2014)",,,"(Ioffe & Szegedy, 2015)",295,1,,,ImageNet
+BNetC,,,,,251,1,,,ImageNet
+CaffeNet,"intended to be same as AlexNet, but trivial(?) differences; see https://github.com/BVLC/caffe/issues/4202",,,"@article{jia2014caffe,
+  Author = {Jia, Yangqing and Shelhamer, Evan and Donahue, Jeff and Karayev, Sergey and Long, Jonathan and Girshick, Ross and Guadarrama, Sergio and Darrell, Trevor},
+  Journal = {arXiv preprint arXiv:1408.5093},
+  Title = {Caffe: Convolutional Architecture for Fast Feature Embedding},
+  Year = {2014}
+}","155,169,172,158,243,249,262,278,294,298,322,339,402,404,405,406,407,408,409,427,428,429,430,464,465,466,467,468,469,470,471,472,480,473,474,475,476,477,478,479,482,484,485,486",44,,"2, 1","ImageNet, ImageNet, ImageNet, ImageNet, Flowers-102, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet"
+CharNet,used in lempitsky cp-decomp,,,"apparently from (Jaderberg et al., 2014b)",277,1,,,???
+CIFAR-10 Quick,,,,"Jasper Snoek, Hugo Larochelle, and Ryan P. Adams. Practical bayesian optimization of machine learning algorithms.",338,1,,,CIFAR-10
+Cifar-net,nisp just links to this URL as explanation for what this is,,,https://code.google.com/archive/p/cuda-convnet/,"198,156",2,,,"CIFAR-10, CIFAR-10"
+CNN_large,,,,,166,1,,,CIFAR-10
+CNN_medium,,,,,159,1,,,SVHN
+CNN_small,,,,,165,1,,,CIFAR-10
+conv32-32-64+fc-?-?,,,,,270,1,,,LFW
+conv48-64-128-37,"""we use a four layer CNN with a softmax output.""",,,made up by jaderberg et al,279,1,,,Combined Char Recognition Dataset
+conv64-64-fc384-192,"""we employ a computationally light convolutional architecture proposed by Alex Krizhevsky, which we dub ConvNet. The architecture comprises two layers with 64 5x5 kernels (feature maps), followed by two dense layers with 384 and 192 units respectively.""",,,"supposedly alex krizhevsky (sp?), but no citation given",358,1,,,CIFAR-10
+conv96-192-192-384,,,,,267,1,,,CIFAR-10
+conv192-128-256-fc512,,,,,293,1,,,CIFAR-10
+Custom stacked LSTMs,,,,,101,1,,,PTB
+Dec-3-512,,,,,547,1,,,ICDAR
+Dec-8-256,,,,,554,1,,,ICDAR
+Dec-8-512,,,,,614,1,,,ImageNet
+Dec3,,,,,253,1,,,ICDAR
+Dec8,,,,,252,1,,,ImageNet
+DeepFace,,,,,368,1,,,LFW
+DenseNet-40,,2017,6,"@inproceedings{huang2017densely,
+  title={Densely connected convolutional networks},
+  author={Huang, Gao and Liu, Zhuang and Van Der Maaten, Laurens and Weinberger, Kilian Q},
+  booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},
+  pages={4700--4708},
+  year={2017}
+}","28,31,82,83,84,578",6,,,"CIFAR-10, CIFAR-100, CIFAR-10, CIFAR-100, SVHN, CIFAR-10"
+DenseNet-BC-100,,,,,"34,36",2,,,"CIFAR-10, CIFAR-100"
+FaceNet,,,,,367,1,,,LFW
+Family of CNNs,,,,,221,1,,,CIFAR-10
+Family of RBMs,,,,,"207,208,209,210,211,212,213,214,215,216,217",11,,,"UCI-Adult, UCI-Connect4, UCI-DNA, UCI-Mushrooms, UCI-NIPS-0-12, UCI-OCR-letters, UCI-RCV1, UCI-Web, Caltech101-Silhouettes-16x16, Caltech-101-Silhouettes-28x28, MNIST"
+fc3,,,,,"342,343,344,345",4,,,"UCI-Boston, MONK1, MONK2, MONK3"
+fc5,,,,,341,1,,,UCI-Diabetes
+fc10,,,,,340,1,,,UCI-BreastCancer
+fc40-20,,,,,186,1,,,Digits
+fc40-40-30-11,,,,,180,1,,,SSD
+fc50-50-20,,,,,99,1,,,Covertype
+fc50-50-20-7,,,,,183,1,,,Covertype
+fc174-78,,,,,191,1,,,MNIST
+fc294-166,,,,,190,1,,,MNIST
+fc300-100,they attribute this to the lenet paper (I think it's the lenet paper),,,"apparently (Yann LeCun, Léon Bottou, Yoshua Bengio, Patrick Haffner, et al. Gradient-based learning applied to document recognition. Proceedings of the IEEE, 86(11):2278–2324, 1998.)",600,1,,,MNIST
+fc300-300,,,,,"111,114",2,,,"MNIST, MNIST"
+fc300-500-300,,,,,"112,115",2,,,"MNIST, MNIST"
+fc300-1000-300,,,,,"95,96,113,116",4,,,"MNIST, CIFAR-10, MNIST, MNIST"
+fc400-300-100-10,,,,,182,1,,,MNIST
+fc500-300,,,,,189,1,,,MNIST
+fc500-300-100,,,,,"60,153",2,,,"MNIST, MNIST"
+fc500-500-sigmoid,,,,,"162,167",2,,,"MNIST, MNIST-ROT"
+fc1000-300-100,,,,,46,1,,,MNIST
+fc1000-1000-1000,,,,,"218,220",2,,,"MNIST, HIGGS"
+fc2048x7,,,,,311,1,,,Switchboard English
+fc3072-1000-1000-1000-sigmoid,,,,,168,1,,,CIFAR-10
+fc4000-1000-4000,,,,,219,1,,,CIFAR-10
+FCN-32s,,,,,290,1,,,Pascal VOC 2007
+GenericNet,,,,"Jasper Snoek, Oren Rippel, Kevin Swersky, Ryan Kiros, Nadathur Satish, Narayanan Sundaram, Md Patwary, Mostofa Ali, Ryan P Adams, et al. Scalable bayesian optimization using deep neural networks. arXiv preprint arXiv:1502.05700, 2015.",320,1,,,CIFAR-10
+GoogLeNet,,,,,"103,200,250",3,,2,"ImageNet, ImageNet, ImageNet"
+GPipe,,2018,,Huang et al.,,0,,,
+GRU Dense 2560,,,,,126,1,,,(Proprietary)
+GRU-b,cell size of 256,,,SNIP,14,1,,,Sequential MNIST
+GRU-s,cell size of 128,,,SNIP,13,1,,,Sequential MNIST
+Inception-ResNet-v2,,2017,,Szegedy et al.,,0,,,
+Inception-v3,,2016,,Szegedy et al,148,1,,,ImageNet
+Inception-v4,,2017,,Szegedy et al.,,0,,,
+L5-1024,,,,,310,1,,,TIMIT
+LeNet-5,,,,,"2,42,47,150,160,171,197,269,285,323,333,550",12,,,"MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST"
+LeNet-5-Caffe,seems to be 20-50-500-softmax...which is not Lenet5,,,,"179,164,154,123,247,297,312,318,321,335,337,357,556,601",14,,,"MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST"
+LeNet-5-Caffe+800,"they say lenet-5-caffe, but list size as 20-50-800-500, which doesn't match lenet-5-caffe",,,,119,1,,,MNIST
+LeNet-300-100,,,,,"1,72,118,122,163,170,178,254,264,284,296,356",12,,,"MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST, MNIST"
+Lenet-500-300,,,,,334,1,,,MNIST
+LSTM-1500-1500,,,,,70,1,,,PTB
+LSTM-b,cell size of 256,,,SNIP,12,1,,,Sequential MNIST
+LSTM-s,cell size of 128,,,SNIP,11,1,,,Sequential MNIST
+MobileNet,,2017,,Howard et al.,"330,363,431,432,607",5,,,"ImageNet, CIFAR-10, ImageNet, ImageNet, ImageNet"
+MobileNet-v2,,2018,,Sandler et al.,"331,364",2,,,"ImageNet, CIFAR-10"
+NASNet-Large,,2017,,Zoph et al.,,0,,,
+NASNet-Mobile,,2017,,Zoph et al.,,0,,,
+Net-Trim-ConvNet,,,,,48,1,,,CIFAR-10
+NIN,,,,,"240,292",2,,,"CIFAR-10, CIFAR-10"
+PeleeNet,,,,,87,1,,,ImageNet
+PixelCNN++,,,,,106,1,,,???
+Plain-20,No idea what this is and I'm pretty sure they don't say,,,,"326,606",2,,,"CIFAR-10, CIFAR-10"
+PNASNet,,2018,,Liu et al.,,0,,,
+PolyNet,,2017,,Zhang et al.,,0,,,
+PreResNet-29+L1,,,,,"350,354",2,,,"CIFAR-10, CIFAR-100"
+PreResNet-110,,,,,"33,35,222",3,,,"CIFAR-10, CIFAR-100, CIFAR-10"
+PreResNet-164,,,,,"27,30,56,59,81,77,223,230",8,,,"CIFAR-10, CIFAR-100, CIFAR-10, SVHN, CIFAR-100, CIFAR-10, CIFAR-10, CIFAR-100"
+R3DCNN,,,,,245,1,,,nvGesture
+ResNet-18,,2016,6,,"41,45,193,237,289,304,305,306,372,523,524,543,567,570,571,577,598",17,,"2, 1","CIFAR-10, ImageNet, ImageNet, ImageNet, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, CIFAR-10, ImageNet"
+ResNet-20,,2016,6,,"76,157,184,273,498,499",6,,,"CIFAR-10, CIFAR-10, CIFAR-10, ???, CIFAR-10, CIFAR-10"
+ResNet-32,,2016,6,,"185,274,317,349,353,500,501,286,513,514,515",11,,,"CIFAR-10, ???, CIFAR-10, CIFAR-10, CIFAR-100, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10"
+ResNet-34,,2016,6,,"145,194,205,238,63,412,496,497,23,533,540,541,542",13,,"4, 4, 4","ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet"
+ResNet-44,,2016,6,,275,1,,,???
+ResNet-50,,2016,6,,"25,43,50,65,67,85,130,131,136,195,206,54,328,360,365,373,381,382,413,434,435,438,439,440,441,443,444,445,446,510,525,526,527,536,537,538,539,555,568,572,573,579,586,587,592,593,612",47,,"4, 8, 8, 8, 4, 4, 8, 8","ImageNet, ImageNet, ImageNet, CIFAR-100, ImageNet, ImageNet, CIFAR-10, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, CIFAR-10, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ICDAR, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet"
+Resnet-50-DWSep,"they call this ""Xception"" but it's them swapping in depth wise separable convs in a resnet-50",2016,6,channel-lasso-lstsq,"132,133",2,,,"CIFAR-10, ImageNet"
+ResNet-56,,2016,6,,"21,38,64,90,93,127,142,181,203,319,327,359,362,436,437,488,490,494,502,503,504,505,506,512,516,517,518,522,531,558,564,565,605,609",34,,"0, 0, 0, 0, 0","CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-100, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-100, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10"
+ResNet-101,,2016,6,,"196,268,511,569,574,575",6,,,"ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet"
+ResNet-110,,2016,6,,"22,39,143,192,204,287,495,507,508,509,519,520,521,532",14,,"0, 0","CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10"
+ResNext-20,,2016,6,"@article{Xie2016,
+  title={Aggregated Residual Transformations for Deep Neural Networks},
+  author={Saining Xie and Ross Girshick and Piotr Dollár and Zhuowen Tu and Kaiming He},
+  journal={arXiv preprint arXiv:1611.05431},
+  year={2016}
+}",78,1,,,CIFAR-10
+ResNext-50,,2016,6,"@article{Xie2016,
+  title={Aggregated Residual Transformations for Deep Neural Networks},
+  author={Saining Xie and Ross Girshick and Piotr Dollár and Zhuowen Tu and Kaiming He},
+  journal={arXiv preprint arXiv:1611.05431},
+  year={2016}
+}",86,1,,,ImageNet
+ResNext-164,,2016,6,"@article{Xie2016,
+  title={Aggregated Residual Transformations for Deep Neural Networks},
+  author={Saining Xie and Ross Girshick and Piotr Dollár and Zhuowen Tu and Kaiming He},
+  journal={arXiv preprint arXiv:1611.05431},
+  year={2016}
+}",79,1,,,CIFAR-10
+RNN Dense 1760,,,,,125,1,,,(Proprietary)
+SegNet,,,,,"68,291",2,,,"CamVid, CamVid"
+SENet,,2018,,Hu et al.,,0,,,
+ShuffleNet,,2017,,Zhang et al.,,0,,,
+ShuffleNet-v2,,2018,7,"@article{Ma_2018,
+   title={ShuffleNet V2: Practical Guidelines for Efficient CNN Architecture Design},
+   ISBN={9783030012649},
+   ISSN={1611-3349},
+   url={http://dx.doi.org/10.1007/978-3-030-01264-9_8},
+   DOI={10.1007/978-3-030-01264-9_8},
+   journal={Lecture Notes in Computer Science},
+   publisher={Springer International Publishing},
+   author={Ma, Ningning and Zhang, Xiangyu and Zheng, Hai-Tao and Sun, Jian},
+   year={2018},
+   pages={122–138}
+}",,0,,,
+SimpleCNN,"""SimpleCNN is composed of the following layers: 3 conv layers of size 96x3x3, a drop-out layer, 3 conv layers of size 192x3x3, drop-out layer, 1 conv layer of size 192x3x3, 1 conv layer of size 192x1x1, 1 conv layer of size [number of classes]x1x1, and finally an average pooling before the softmax layer. We use batchnorm and ReLU activations after every convolutional layer. The drop-out probability is set to 0.5.”",,,apple pfa paper,"91,94",2,,,"CIFAR-10, CIFAR-100"
+Small-World LSTM,,,,,"107,108,109,110",4,,,"Amazon Reviews, Stanford Sentiment Treebank, IMDB, Yelp"
+SphereNet-4,,,,,370,1,,,LFW
+SPP-10,"""This model (detailed in Table 1) has a similar architecture to the OverFeat model [6] but is deeper. It has 7 conv layers and 3 fc layers.""",,,zhang-accel-very-deep,280,1,,,ImageNet
+SqueezeNet,,,,,"104,551,552,553",4,,,"ImageNet, ImageNet, ImageNet, ImageNet"
+SqueezeNet,,2016,,"@article{iandola2016squeezenet,",,0,,,
+TF-Example-CIFAR10,"“We use standard networks provided by TensorFlow. For MNIST, it has 3-layer convolutional layers and achieves 99.5% accuracy when fully trained. For CIFAR-10, it has 2 convolutional layers and achieves 87% accuracy.”",,,"  title={SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and< 0.5 MB model size},",147,1,,,CIFAR-10
+TF-Example-MNIST,"“We use standard networks provided by TensorFlow. For MNIST, it has 3-layer convolutional layers and achieves 99.5% accuracy when fully trained. For CIFAR-10, it has 2 convolutional layers and achieves 87% accuracy.”",,,"  author={Iandola, Forrest N and Han, Song and Moskewicz, Matthew W and Ashraf, Khalid and Dally, William J and Keutzer, Kurt},",146,1,,,MNIST
+Toy Convnets,,,,"  journal={arXiv preprint arXiv:1602.07360},",73,1,,,CIFAR-10
+Transformer,,,,  year={2016},51,1,,,WMT 2014 English-German
+Variational RHN + WT,,,,},105,1,,,SQuaD
+Various FC Networks,,,,MIT coreset paper; it's a bunch of little nets they made up and I didn't want to clutter the list with,49,1,,,MNIST
+VGG-16,VGG-D,2014,,"@article{simonyan2014very,
+  title={Very deep convolutional networks for large-scale image recognition},
+  author={Simonyan, Karen and Zisserman, Andrew},
+  journal={arXiv preprint arXiv:1409.1556},
+  year={2014}
+}","24,52,53,62,66,69,97,128,129,135,137,139,161,173,242,244,248,261,263,271,272,265,266,281,283,288,300,301,302,303,325,329,375,376,377,378,379,380,384,385,386,387,388,389,390,391,393,394,395,396,398,399,400,401,419,420,421,422,423,424,426,535,544,548,549,582,583,588,589,590,591,594,595,596,608,611",76,,"31, 31, 31, 31, 15, 15, 31, 31, 31, 31, 31, 31, 31, 31, 31, 15, 15, 15, 15, 15","ImageNet, CUB200-2011, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, Pascal VOC 2007, ImageNet, CUB200-2011, Indoor-67-balanced, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, Pascal VOC 2007, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, ImageNet, CUB200-2011, Stanford-Dogs, ImageNet, ImageNet, ImageNet"
+VGG-16-AvgPool,,,,apparently from preprint of rethinking-net-pruning?,"74,134",2,,,"CIFAR-10, CUB200-2011"
+VGG-16-fc512,,,,,316,1,,,CIFAR-10
+VGG-16-fc512-512,,,,,308,1,,,CIFAR-10
+VGG-16+BN-OneFC,"used in sss paper; started with VGG-16 + batchnorm from bathcnorm paper, then removed fc6 and fc7 so only one fc layer",,,sss adapted from original batchnorm paper,75,1,,,CIFAR-10
+VGG-16+Dropout,,,,,98,1,,,CIFAR-10
+VGG-16n,"""We modify the model architecture (calling it VGG-16n) by removing the two fully-connected layers with depth 4096 and replacing them with a 2 × 2 maxpool layer followed by a 3 × 3 convolutional layer with the depth of 1024.”",,,google interchannel,149,1,,,ImageNet
+VGG-19,VGG-E,2014,,"@article{simonyan2014very,
+  title={Very deep convolutional networks for large-scale image recognition},
+  author={Simonyan, Karen and Zisserman, Andrew},
+  journal={arXiv preprint arXiv:1409.1556},
+  year={2014}
+}","26,29,40,347,351,355,152",7,,,"CIFAR-10, CIFAR-100, CIFAR-10, CIFAR-10, CIFAR-100, Tiny ImageNet, ImageNet"
+VGG-19+L1,,,,,"348,352",2,,,"CIFAR-10, CIFAR-100"
+VGG-A+BN-noDrop,first used in network-slimming,,,https://github.com/soumith/imagenet-multiGPU.torch,"32,55",2,,,"ImageNet, ImageNet"
+VGG-C+BN,"vgg+batchnorm + other changes? desc at end of SNIP, but unclear differences between VGG{C,D,like}",,,??? from SNIP,"5,17",2,,,"CIFAR-10, Tiny ImageNet"
+VGG-D+BN,"vgg+batchnorm + other changes? desc at end of SNIP, but unclear differences between VGG{C,D,like}",,,??? from SNIP,"6,18",2,,,"CIFAR-10, Tiny ImageNet"
+VGG-GAP,,,,,"397,528",2,,,"ImageNet, ImageNet"
+VGG-like,SNIP,,,zagoruyko 2015,"7,19",2,,,"CIFAR-10, Tiny ImageNet"
+VGG-netslim,might be the same as VGG-A+BN-noDrop,,,,"57,80,58,315,576",5,,,"CIFAR-10, CIFAR-100, SVHN, CIFAR-10, CIFAR-10"
+VGG-S,,,,"Possibly from (Return of the Devil in the Details: Delving Deep into Convolutional Nets K. Chatfield, K. Simonyan, A. Vedaldi, A. Zisserman British Machine Vision Conference, 2014)",,0,,,
+VGG-Tiny,,,,,"529,530",2,,,"ImageNet, ImageNet"
+VGG-Torch-CIFAR10,BN+Dropout; (2× 64)-(2× 128)-(3×256)-(8× 512),,,https://github.com/szagoruyko/cifar.torch/blob/master/models/vgg_bn_drop.lua,"89,92,124,141,176,177,309,336,487,489,20,561,563,604",14,,"0, 0, 0","CIFAR-10, CIFAR-100, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-100, CIFAR-100, CIFAR-10, CIFAR-10, CIFAR-100, CIFAR-10, CIFAR-10, CIFAR-10, CIFAR-10"
+VGG-Torch-CIFAR10-noDrop,used in net slimming; they rm the dropout present in the GitHub version,,,https://github.com/szagoruyko/cifar.torch/blob/master/models/vgg_bn_drop.lua,61,1,,,CIFAR-100
+VGG8,pretty sure they don't explain what this is,,,,599,1,,,CIFAR-10
+WRN-16-4,,2016,,"@article{zagoruyko2016wide,
+  title={Wide residual networks},
+  author={Zagoruyko, Sergey and Komodakis, Nikos},
+  journal={arXiv preprint arXiv:1605.07146},
+  year={2016}
+}","231,255,259",3,,,"CIFAR-100, CIFAR-10, CIFAR-100"
+WRN-16-8,SNIP,2016,,"@article{zagoruyko2016wide,
+  title={Wide residual networks},
+  author={Zagoruyko, Sergey and Komodakis, Nikos},
+  journal={arXiv preprint arXiv:1605.07146},
+  year={2016}
+}",8,1,,,CIFAR-10
+WRN-16-10,SNIP,2016,,"@article{zagoruyko2016wide,
+  title={Wide residual networks},
+  author={Zagoruyko, Sergey and Komodakis, Nikos},
+  journal={arXiv preprint arXiv:1605.07146},
+  year={2016}
+}",9,1,,,CIFAR-10
+WRN-22-8,SNIP,2016,,"@article{zagoruyko2016wide,
+  title={Wide residual networks},
+  author={Zagoruyko, Sergey and Komodakis, Nikos},
+  journal={arXiv preprint arXiv:1605.07146},
+  year={2016}
+}","10,224,232",3,,,"CIFAR-10, CIFAR-10, CIFAR-100"
+WRN-28-2,,2016,,"@article{zagoruyko2016wide,
+  title={Wide residual networks},
+  author={Zagoruyko, Sergey and Komodakis, Nikos},
+  journal={arXiv preprint arXiv:1605.07146},
+  year={2016}
+}",225,1,,,CIFAR-10
+WRN-28-10,,2016,,"@article{zagoruyko2016wide,
+  title={Wide residual networks},
+  author={Zagoruyko, Sergey and Komodakis, Nikos},
+  journal={arXiv preprint arXiv:1605.07146},
+  year={2016}
+}","120,121,602,603",4,,,"CIFAR-10, CIFAR-100, CIFAR-10, CIFAR-100"
+WRN-40-1,,2016,,"@article{zagoruyko2016wide,
+  title={Wide residual networks},
+  author={Zagoruyko, Sergey and Komodakis, Nikos},
+  journal={arXiv preprint arXiv:1605.07146},
+  year={2016}
+}","226,233",2,,,"CIFAR-10, CIFAR-100"
+WRN-40-2,,2016,,"@article{zagoruyko2016wide,
+  title={Wide residual networks},
+  author={Zagoruyko, Sergey and Komodakis, Nikos},
+  journal={arXiv preprint arXiv:1605.07146},
+  year={2016}
+}","227,234",2,,,"CIFAR-10, CIFAR-100"
+WRN-40-4,,2016,,"@article{zagoruyko2016wide,
+  title={Wide residual networks},
+  author={Zagoruyko, Sergey and Komodakis, Nikos},
+  journal={arXiv preprint arXiv:1605.07146},
+  year={2016}
+}","228,235",2,,,"CIFAR-10, CIFAR-100"
+WRN-52-1,,2016,,"@article{zagoruyko2016wide,
+  title={Wide residual networks},
+  author={Zagoruyko, Sergey and Komodakis, Nikos},
+  journal={arXiv preprint arXiv:1605.07146},
+  year={2016}
+}","229,236",2,,,"CIFAR-10, CIFAR-100"
+Xception,,2017,,Chollet,,0,,,
+Yi's Face Network,,,,"""Learning Face Representation from Scratch""",239,1,,,CASIA-WebFace

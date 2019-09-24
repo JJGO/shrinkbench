@@ -1,0 +1,25 @@
+Model,Top1,Top5,MParams,#Params-Ratio-to-EfficientNet,GFLOPS,#FLOPS-Ratio-to-EfficientNet
+EfficientNet-B0, 76.3, 93.2, 5.3, 1, 0.39,  1
+ResNet-50, 76.0, 93.0, 26, 4.9, 4.1, 11
+DenseNet-169, 76.2, 93.2, 14, 2.6, 3.5, 8.9
+EfficientNet-B1, 78.8, 94.4, 7.8, 1, 0.70,  1
+ResNet-152, 77.8, 93.8, 60, 7.6, 11, 16
+DenseNet-264, 77.9, 93.9, 34, 4.3, 6.0, 8.6
+Inception-v3, 78.8, 94.4, 24, 3.0, 5.7, 8.1
+Xception, 79.0, 94.5, 23, 3.0, 8.4, 12
+EfficientNet-B2, 79.8, 94.9, 9.2, 1, 1.0,  1
+Inception-v4, 80.0, 95.0, 48, 5.2, 13, 13
+Inception-resnet-v2, 80.1, 95.1, 56, 6.1, 13, 13
+EfficientNet-B3, 81.1, 95.5, 12, 1, 1.8,  1
+ResNeXt-101, 80.9, 95.6, 84, 7.0, 32, 18
+PolyNet, 81.3, 95.8, 92, 7.7, 35, 19
+EfficientNet-B4, 82.6, 96.3, 19, 1, 4.2,  1
+SENet, 82.7, 96.2, 146, 7.7, 42, 10
+NASNet-A, 82.7, 96.2, 89, 4.7, 24, 5.7
+AmoebaNet-A, 82.8, 96.1, 87, 4.6, 23, 5.5
+PNASNet, 82.9, 96.2, 86, 4.5, 23, 6.0
+EfficientNet-B5, 83.3, 96.7, 30, 1, 9.9,  1
+AmoebaNet-C, 83.5, 96.5, 155, 5.2, 41, 4.1
+EfficientNet-B6, 84.0, 96.9, 43, 1, 19,  1
+EfficientNet-B7, 84.4, 97.1, 66, 1, 37,  1
+GPipe, 84.3, 97.0, 557, 8.4,,
