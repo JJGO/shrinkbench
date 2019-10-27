@@ -2,7 +2,7 @@
 
 Open source PyTorch library to facilitate development and  standardized evaluation of neural network pruning methods. 
 
-![](https://raw.githubusercontent.com/shrinkbench/shrinkbench.github.io/master/diagram.svg)
+![](https://shrinkbench.github.io/diagram.svg)
 
 The modules are organized as follows:
 
