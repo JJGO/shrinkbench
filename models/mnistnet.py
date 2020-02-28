@@ -1,3 +1,8 @@
+"""Small CNN designed for MNIST, intended for debugging purposes
+
+[description]
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -14,7 +19,7 @@ class MnistNet(nn.Module):
         self.conv2 = nn.Conv2d(20, 50, 5, 1)
         self.fc1 = nn.Linear(4*4*50, 500)
         self.fc2 = nn.Linear(500, 10)
-
+        self.fc2.is_classifier = True
         if pretrained:
             weights = weights_path('mnistnet.pt')
             self.load_state_dict(torch.load(weights))

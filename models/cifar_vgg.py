@@ -72,6 +72,9 @@ class VGGBnDrop(nn.Module):
             nn.Linear(512, self.num_classes),
         )
 
+        # To prevent pruning
+        self.classifier[-1].is_classifier = True
+
     def forward(self, input):
 
         x = self.features(input)

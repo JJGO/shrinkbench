@@ -1,7 +1,7 @@
 '''
-Taken from
+Sourced from
 https://raw.githubusercontent.com/akamaster/pytorch_resnet_cifar10
-
+==============================================================================
 Properly implemented ResNet-s for CIFAR10 as described in paper [1].
 
 The implementation and structure of this file is hugely influenced by [2]
@@ -102,7 +102,7 @@ class ResNet(nn.Module):
         self.layer2 = self._make_layer(block, 32, num_blocks[1], stride=2)
         self.layer3 = self._make_layer(block, 64, num_blocks[2], stride=2)
         self.linear = nn.Linear(64, num_classes)
-
+        self.linear.is_classifier = True    # So layer is not pruned
         self.apply(_weights_init)
 
     def _make_layer(self, block, planes, num_blocks, stride):
@@ -131,7 +131,7 @@ def resnet_factory(filters, num_classes, weight_file):
         if pretrained:
             weights = weights_path(weight_file)
             weights = torch.load(weights)['state_dict']
-            # TODO have a better story for this
+            # TODO have a better solution for DataParallel models
             # For models trained with nn.DataParallel
             if list(weights.keys())[0].startswith('module.'):
                 weights = { k[len("module."):] : v for k, v in weights.items()}
