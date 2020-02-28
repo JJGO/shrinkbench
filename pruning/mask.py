@@ -2,10 +2,22 @@ import numpy as np
 import pandas as pd
 
 from .modules import masked_modules, _ensure_tensor, _same_device
-from ..models.head import get_classifier_module
 
 
 def mask_module(module, masks):
+    """Recursively mask a torch.nn Module
+
+    Changes layers so that backprop doesn't get to masked parameters
+    Note this operates inplace and modifies the passed network
+
+    Arguments:
+        module {torch.nn.Module} -- Module to mask
+        masks Dict(torch.nn.Module : Dict(str:numpy.ndarray))
+            -- Dictionary with masks for each weight tensor
+
+    Returns:
+        torch.nn.Module -- Same as id as input module, but after masking
+    """
 
     # Need to store the new children so iteration won't break
     new_children = {}
@@ -28,28 +40,20 @@ def mask_module(module, masks):
     return module
 
 
-def unmask_classifier(model, masks):
-
-    clf = get_classifier_module(model)
-
-    if clf in masks:
-        for p in masks[clf]:
-            masks[clf][p] = np.ones_like(masks[clf][p])
-
-    return masks
-
-
-def masks_details(model, masks):
-    rows = []
-    for name, module in model.named_modules():
-        if module in masks:
-            for k, v in masks[module].items():
-                rows.append([name, k, 1/v.mean(), np.prod(v.shape), v.shape])
-    columns = ['module', 'param', 'comp', 'size', 'shape']
-    return pd.DataFrame(rows, columns=columns)
-
-
 def apply_masks(module, masks):
+    """Recursively mask a torch.nn Module
+
+    Zeros out masked parameters, does not change the layer
+    Note this operates inplace and modifies the passed network
+
+    Arguments:
+        module {torch.nn.Module} -- Module to mask
+        masks Dict(torch.nn.Module : Dict(str:numpy.ndarray))
+            -- Dictionary with masks for each weight tensor
+
+    Returns:
+        torch.nn.Module -- Same as id as input module, but after masking
+    """
     for name, submodule in module.named_children():
 
         if submodule in masks:
@@ -63,3 +67,27 @@ def apply_masks(module, masks):
         apply_masks(submodule, masks)
 
     return module
+
+
+# Aux functions
+
+def masks_details(model, masks):
+    """Debug information for collection of masks
+
+    Returns a dataframe with summary information of all masks
+
+    Arguments:
+        model {torch.nn.Module} -- torch module that the masks correspond to
+        masks Dict(torch.nn.Module : Dict(str:numpy.ndarray))
+            -- Dictionary with masks for each weight tensor
+
+    Returns:
+        pandas.DataFrame -- DataFrame with compression, size and shape for each mask
+    """
+    rows = []
+    for name, module in model.named_modules():
+        if module in masks:
+            for k, v in masks[module].items():
+                rows.append([name, k, 1/v.mean(), np.prod(v.shape), v.shape])
+    columns = ['module', 'param', 'comp', 'size', 'shape']
+    return pd.DataFrame(rows, columns=columns)
