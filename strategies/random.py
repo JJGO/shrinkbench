@@ -1,16 +1,12 @@
-# -*- coding: utf-8 -*-
-
 """Random  pruning
 
 Implements pruning strategy that randomly prunes weights.
-It is intended as a baseline
+It is intended as a baseline for pruning evalution
 """
 
 import numpy as np
-import torch.nn as nn
-
-
-from ..pruning import *
+from ..pruning import VisionPruning
+from .utils import map_importances
 
 
 def random_mask(tensor, fraction):
@@ -20,23 +16,9 @@ def random_mask(tensor, fraction):
     return mask
 
 
-class RandomPruning(Pruning):
+class RandomPruning(VisionPruning):
 
-    def __init__(self, compression, prune_classifier=False):
-        super(RandomPruning, self).__init__(
-            compression=compression,
-            prune_classifier=prune_classifier)
-        self.masked_modules = (nn.Linear, nn.Conv2d)
-
-    def model_masks(self, model, *_):
-
-        prunable = prunable_modules(model,
-                                    self.masked_modules,
-                                    self.prune_classifier)
-        fraction = fraction_to_keep(self.compression, model, prunable)
-
-        masks = { module : { k : random_mask(v, fraction)
-                           for k, v in get_params(module).items()}
-                  for module in prunable }
-
+    def model_masks(self):
+        params = self.params()
+        masks = map_importances(params, lambda x: random_mask(x, self.fraction))
         return masks
