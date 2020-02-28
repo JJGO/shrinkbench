@@ -5,7 +5,7 @@ import string
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from .utils import AutoMap
+from ..util import AutoMap
 from .data import df_from_results, df_filter
 
 CMAP = plt.get_cmap('Set1')

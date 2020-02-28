@@ -1,5 +1,5 @@
 from collections import defaultdict
-from .utils import AutoMap
+from ..util import AutoMap
 import matplotlib.pyplot as plt
 
 COLORS = defaultdict(lambda: AutoMap(plt.get_cmap('Set1').colors))
