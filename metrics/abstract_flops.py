@@ -1,3 +1,5 @@
+"""Module for computing FLOPs from specification, not from Torch objects
+"""
 import numpy as np
 
 
@@ -49,13 +51,13 @@ def conv2d_flops(in_channels, out_channels, input_shape, kernel_shape,
     assert len(input_shape) == 2
     assert len(kernel_shape) == 2
     padding = padding.lower()
-    assert padding in ('same', 'valid', 'zeros')
+    assert padding in ('same', 'valid', 'zeros'), "Padding must be one of same|valid|zeros"
     try:
         strides = tuple(strides)
     except TypeError:
         # if one number provided, make it a 2-tuple
         strides = (strides, strides)
-    assert dilation == 1 or all(d==1 for d in dilation)
+    assert dilation == 1 or all(d == 1 for d in dilation), "Dilation > 1 is not supported"
 
     # compute output spatial shape
     # based on TF computations https://stackoverflow.com/a/37674568
