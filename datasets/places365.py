@@ -1,47 +1,26 @@
-# # https://github.com/CSAILVision/places365/blob/master/train_placesCNN.py
-# from torchvision import transforms, datasets
+import pathlib
 
-# from . import get_data_paths
+from torch.utils.data import Dataset
+from torchvision.datasets import ImageFolder
 
-
-# # TODO : Bolei used the normalization for Imagenet, not the one for Places!
-# normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-#                                  std=[0.229, 0.224, 0.225])
-
-
-# # TODO : Use HDF5 files instead
+# Data is here : http://places2.csail.mit.edu/download.html
+# We assume directory structure from
+#   Small images (256 * 256) with easy directory structure
 
 
-# def train_dataset(preproc=True):
+class Places365(Dataset):
 
-#     data_paths = get_data_paths()
+    def __init__(self, root, train=True, transform=None, target_transform=None, **kwargs):
+        root = pathlib.Path(root)
+        root /= 'places365_standard'
+        root /= 'train' if train else 'val'
+        self.data = ImageFolder(root,
+                                transform=transform,
+                                target_transform=target_transform,
+                                **kwargs)
 
-#     train_preprocessing = None
-#     if preproc:
-#         train_preprocessing = transforms.Compose([
-#             transforms.RandomResizedCrop(224),
-#             transforms.RandomHorizontalFlip(),
-#             transforms.ToTensor(),
-#             normalize,
-#         ])
-#     train_dataset = datasets.ImageFolder(data_paths['Places365'] / 'train',
-#                                          transform=train_preprocessing)
-#     return train_dataset
+    def __len__(self):
+        return len(self.data)
 
-
-# def val_dataset(preproc=True):
-
-#     data_paths = get_data_paths()
-
-#     val_preprocessing = None
-#     if preproc:
-#         val_preprocessing = transforms.Compose([
-#             transforms.Resize(256), # TODO Necessary? Isn't data 256?
-#             transforms.CenterCrop(224),
-#             transforms.ToTensor(),
-#             normalize,
-#         ])
-
-#     val_dataset = datasets.ImageFolder(data_paths['Places365'] / 'val',
-#                                        transform=val_preprocessing)
-#     return val_dataset
+    def __getitem__(self, index):
+        return self.data[index]
