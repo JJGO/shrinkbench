@@ -6,10 +6,23 @@ from collections import OrderedDict, defaultdict
 import torch
 from torch import nn
 
-from ..models.head import get_classifier_module
-
 
 def hook_applyfn(hook, model, forward=False, backward=False):
+    """
+
+    [description]
+
+    Arguments:
+        hook {[type]} -- [description]
+        model {[type]} -- [description]
+
+    Keyword Arguments:
+        forward {bool} -- [description] (default: {False})
+        backward {bool} -- [description] (default: {False})
+
+    Returns:
+        [type] -- [description]
+    """
     assert forward ^ backward, \
         "Either forward or backward must be True"
     hooks = []
@@ -32,19 +45,19 @@ def hook_applyfn(hook, model, forward=False, backward=False):
     return register_hook, hooks
 
 
-# def get_modules(module, prefix=""):
-#     """Recursively find all submodules from torch modules,
-#     returning them in state_dict format
-#     """
-#     # TODO unnecesary given named_modules
-#     modules = {}
-#     for n, m in module.named_children():
-#         modules[prefix+n] = m
-#         modules.update(get_modules(m, prefix=prefix+n+'.'))
-#     return modules
-
-
 def get_params(model, recurse=False):
+    """Returns dictionary of paramters
+
+    Arguments:
+        model {torch.nn.Module} -- Network to extract the parameters from
+
+    Keyword Arguments:
+        recurse {bool} -- Whether to recurse through children modules
+
+    Returns:
+        Dict(str:numpy.ndarray) -- Dictionary of named parameters their
+                                   associated parameter arrays
+    """
     params = {k: v.detach().cpu().numpy().copy()
               for k, v in model.named_parameters(recurse=recurse)}
     return params
@@ -56,12 +69,12 @@ def get_activations(model, input):
 
     def store_activations(module, input, output):
         if isinstance(module, nn.ReLU):
-            # TODO Fix. ResNet18 implementation reuses a
+            # TODO ResNet18 implementation reuses a
             # single ReLU layer?
             return
         assert module not in activations, \
             f"{module} already in activations"
-        # TODO remove [0], not all models have a single input
+        # TODO [0] means first input, not all models have a single input
         activations[module] = (input[0].detach().cpu().numpy().copy(),
                                output.detach().cpu().numpy().copy(),)
 
@@ -125,34 +138,23 @@ def get_param_gradients(model, inputs, outputs, loss_func=None, by_module=True):
     return gradients
 
 
-def prunable_modules(model, masked_modules, prune_classifier=True):
-
-    modules = model.named_modules()
-    prunable_modules = {name: module for name, module in modules
-                        if isinstance(module, masked_modules)}
-
-    if not prune_classifier:
-        clf = get_classifier_module(model)
-        if clf in prunable_modules:
-            del prunable_modules[clf]
-
-    prunable_modules = list(prunable_modules.values())
-
-    return prunable_modules
-
-
 def fraction_to_keep(compression, model, prunable_modules):
-    """ Return fraction of params to keep to achieve compression ratio
+    """ Return fraction of params to keep to achieve desired compression ratio
 
     Compression = total / ( fraction * prunable + (total-prunable))
-    # Using algrebra fraction is equal to
-    # fraction = total/prunable * (1/compression - 1) + 1
+    Using algrebra fraction is equal to
+    fraction = total/prunable * (1/compression - 1) + 1
+
+    Arguments:
+        compression {float} -- Desired overall compression
+        model {torch.nn.Module} -- Full model for which to compute the fraction
+        prunable_modules {List(torch.nn.Module)} -- Modules that can be pruned in the model.
+
+    Returns:
+        {float} -- Fraction of prunable parameters to keep to achieve desired compression
     """
     from ..metrics import model_size
-    # return 1/compression # BYPASS FOR DEBUG
-    # TODO fix for compounding
-    total_size = model_size(model)[0]
-    # [1] is so we use nonzeros, this is useful for compounding
+    total_size, _ = model_size(model)
     prunable_size = sum([model_size(m)[0] for m in prunable_modules])
     nonprunable_size = total_size - prunable_size
     fraction = 1 / prunable_size * (total_size/compression - nonprunable_size)
@@ -160,23 +162,3 @@ def fraction_to_keep(compression, model, prunable_modules):
         f"Cannot compress to {1/compression} model with {nonprunable_size/total_size}" + \
         "fraction of unprunable parameters"
     return fraction
-
-# def fraction_to_keep(compression, model, prunable_modules):
-#     """ Return fraction of params to keep to achieve compression ratio
-#     total = prunable + nonprunable + zeros
-#     Compression = (prunable + nonprunable) / (fraction * prunable + nonprunable)
-#     # Using algrebra fraction is equal to
-#     # fraction = (prunable + nonprunable) / (prunable * compression) - (nonprunable / prunable)
-#     """
-
-#     total_size, nonzero_size = model_size(model)
-#     # [1] is so we use nonzeros, this is useful for compounding
-#     prunable_size = sum([model_size(m)[1] for m in prunable_modules.values()])
-#     nonprunable_size = nonzero_size - prunable_size
-
-#     fraction = (prunable_size + nonprunable_size) / (prunable_size * compression) - (nonprunable_size / prunable_size)
-#     assert 0 < fraction <= 1, \
-#         f"Cannot compress to {1/compression} model with {(total_size-prunable_size)/total_size}" +\
-#         "fraction of unprunable parameters"
-#     print(f"{fraction:.2f} <> {prunable_size/total_size:.2f} {nonprunable_size/total_size:.2f}")
-#     return fraction
