@@ -5,16 +5,14 @@ import torch
 def nonzero(tensor):
     """Returns absolute number of values different from 0
 
-    Parameters
-    ----------
-    tensor : ndarray
+    Arguments:
+        tensor {numpy.ndarray} -- Array to compute over
 
-    Returns
-    -------
-    int
-        Number of nonzero elements
+    Returns:
+        int -- Number of nonzero elements
     """
     return np.sum(tensor != 0.0)
+
 
 # https://pytorch.org/docs/stable/tensor_attributes.html
 dtype2bits = {
@@ -36,6 +34,6 @@ dtype2bits = {
 }
 
 
-from .size import model_size, model_size_bits
+from .size import model_size
 from .accuracy import accuracy, correct
 from .memory import memory_size
