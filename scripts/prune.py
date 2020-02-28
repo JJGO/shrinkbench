@@ -31,34 +31,32 @@ parser.add_argument('-D', '--dl', dest='dl_kwargs', type=json.loads, help='JSON 
 parser.add_argument('-T', '--train', dest='train_kwargs', type=json.loads, help='JSON string of Train parameters', default=tuple())
 parser.add_argument('-g', dest='gpuid', type=str, help='GPU id', default="0")
 parser.add_argument('--no-pretrained', dest='pretrained', action='store_false', default=True, help='Do not use pretrained model')
-parser.add_argument('-l', '--retain', dest='retain', action='store_true', default=False, help='Do not release GPU')
 
 if __name__ == '__main__':
 
     args = parser.parse_args()
 
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpuid)
+    delattr(args, 'gpuid')
 
     from flor.experiment import PruningExperiment
 
-    exp = PruningExperiment(dataset=args.dataset,
-                            model=args.model,
-                            strategy=args.strategy,
-                            compression=args.compression,
-                            seed=args.seed,
-                            path=args.path,
-                            pretrained=args.pretrained,
-                            dl_kwargs=args.dl_kwargs,
-                            train_kwargs=args.train_kwargs,
-                            debug=args.debug,
-                            resume=args.resume,
-                            resume_optim=args.resume_optim)
+    exp = PruningExperiment(**vars(args))
+        # dataset=args.dataset,
+        #                     model=args.model,
+        #                     strategy=args.strategy,
+        #                     compression=args.compression,
+        #                     seed=args.seed,
+        #                     path=args.path,
+        #                     pretrained=args.pretrained,
+        #                     dl_kwargs=args.dl_kwargs,
+        #                     train_kwargs=args.train_kwargs,
+        #                     debug=args.debug,
+        #                     resume=args.resume,
+        #                     resume_optim=args.resume_optim)
 
     exp.run()
 
     # TODO - parse signals
     # signal.signal(signal.SIGINT, self.SIGINT_handler)
     # signal.signal(signal.SIGQUIT, self.SIGQUIT_handler)
-
-    while args.retain:
-        time.sleep(60)
