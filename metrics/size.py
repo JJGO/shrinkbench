@@ -1,47 +1,33 @@
-# -*- coding: utf-8 -*-
-
 """Model size metrics
 """
 
 import numpy as np
-
 from . import nonzero, dtype2bits
 
 
-# TODO refactor into one function and have bitsize as flag
-def model_size(model):
+def model_size(model, as_bits=False):
+    """Returns absolute and nonzero model size
 
-    total_params = 0
-    nonzero_params = 0
-    for tensor in model.parameters():
-        if True:
-            total_params += np.prod(tensor.shape)
-            nonzero_params += nonzero(tensor.detach().cpu().numpy())
-    return int(total_params), int(nonzero_params)
+    Arguments:
+        model {torch.nn.Module} -- Network to compute model size over
 
+    Keyword Arguments:
+        as_bits {bool} -- Whether to account for the size of dtype
 
-def model_size_bits(model):
-
-    total_params = 0
-    nonzero_params = 0
-    for tensor in model.parameters():
-        total_params += np.prod(tensor.shape) * dtype2bits[tensor.dtype]
-        nonzero_params += nonzero(tensor.cpu().numpy()) * dtype2bits[tensor.dtype]
-    return int(total_params), int(nonzero_params)
-
-
-# param.endswith('weight') or param.endswith('bias'):
-
-    """Returns absolute number of values different from 0
-
-    Parameters
-    ----------
-    model : pytorch model
-
-    Returns
-    -------
-    total_params : int
-        Total number of weight & bias params
-    nonzero_params : int
-        Out total_params exactly how many are nonzero
+    Returns:
+        int -- Total number of weight & bias params
+        int -- Out total_params exactly how many are nonzero
     """
+
+    total_params = 0
+    nonzero_params = 0
+    for tensor in model.parameters():
+        t = np.prod(tensor.shape)
+        nz = nonzero(tensor.detach().cpu().numpy())
+        if as_bits:
+            bits = dtype2bits[tensor.dtype]
+            t *= bits
+            nz *= bits
+        total_params += t
+        nonzero_params += nz
+    return int(total_params), int(nonzero_params)
