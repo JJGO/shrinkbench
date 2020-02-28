@@ -1,6 +1,8 @@
-from .mask import mask_module, unmask_classifier  #compute_masks,
+from .mask import mask_module, mask_details
 from .modules import LinearMasked, Conv2dMasked
-from .abstract import Pruning, LayerPruning, CompoundPruning
+from .mixin import ActivationMixin, GradientMixin
+from .abstract import Pruning, LayerPruning
+from .vision import VisionPruning
 from .utils import (get_params,
                     get_activations,
                     get_gradients,
