@@ -36,7 +36,7 @@ class LayerMagWeight(LayerPruning, VisionPruning):
     def layer_masks(self, module):
         params = self.module_params(module)
         importances = {param: np.abs(value) for param, value in params.items()}
-        masks = {fraction_mask(importances[param], self.fraction)
+        masks = {param: fraction_mask(importances[param], self.fraction)
                  for param, value in params.items() if value is not None}
         return masks
 
@@ -62,7 +62,7 @@ class LayerMagGrad(GradientMixin, LayerPruning, VisionPruning):
         params = self.module_params(module)
         grads = self.module_param_gradients(module)
         importances = {param: np.abs(value*grads[param]) for param, value in params.items()}
-        masks = {fraction_mask(importances[param], self.fraction)
+        masks = {param: fraction_mask(importances[param], self.fraction)
                  for param, value in params.items() if value is not None}
         return masks
 
@@ -90,6 +90,6 @@ class LayerMagAct(ActivationMixin, LayerPruning, VisionPruning):
         input_act, _ = self.module_activations(module)
         importances = {param: np.abs(activation_importance(value, input_act))
                        for param, value in params.items()}
-        masks = {fraction_mask(importances[param], self.fraction)
+        masks = {param: fraction_mask(importances[param], self.fraction)
                  for param, value in params.items() if value is not None}
         return masks

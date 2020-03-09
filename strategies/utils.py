@@ -7,8 +7,6 @@ rest of the framework pipeline
 
 import numpy as np
 
-from ..pruning import get_params
-
 
 def fraction_threshold(tensor, fraction):
     """Compute threshold quantile for a given scoring function
@@ -64,7 +62,7 @@ def flatten_importances(importances):
     ])
 
 
-def map_importances(importances, fn):
+def map_importances(fn, importances):
     return {module:
             {param: fn(importance)
                 for param, importance in params.items()}
@@ -72,7 +70,7 @@ def map_importances(importances, fn):
 
 
 def importance_masks(importances, threshold):
-    return map_importances(importances, lambda imp: threshold_mask(imp, threshold))
+    return map_importances(lambda imp: threshold_mask(imp, threshold), importances)
     # return {module:
     #         {param: threshold_mask(importance, threshold)
     #             for param, importance in params.items()}
@@ -98,7 +96,7 @@ def activation_importance(weight, activation, norm=1):
     if len(weight.shape) > 2:
         # normalize spatial dims
         norms /= activation.shape[1] * activation.shape[2]
-        # TODO refactor with np.tile or sth
+        # TODO refactor with np.tile or similar
         norms = norms[..., np.newaxis, np.newaxis]
         norms = np.repeat(norms, weight.shape[2], axis=1)
         norms = np.repeat(norms, weight.shape[3], axis=2)
