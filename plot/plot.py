@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 COLORS = defaultdict(lambda: AutoMap(plt.get_cmap('Set1').colors))
 LINES = defaultdict(lambda: AutoMap(['-', '--', ':', '-.']))
-MARKERS = defaultdict(lambda: AutoMap(['.', 's', 'v', '^', '<', '>', 'P']))
+MARKERS = defaultdict(lambda: AutoMap(['o', 's', 'v', '^', '<', '>', 'P']))
 # LINESTYLES = defaultdict(lambda: AutoMap(product(['-', '--', ':'], ['.', 's', '*'])))
 
 
@@ -12,7 +12,7 @@ def reset_plt():
     global COLORS, LINES, MARKERS
     COLORS = defaultdict(lambda: AutoMap(plt.get_cmap('Set1').colors))
     LINES = defaultdict(lambda: AutoMap(['-', '--', ':', '-.']))
-    MARKERS = defaultdict(lambda: AutoMap(['.', 's', 'v', '^', '<', '>', 'P']))
+    MARKERS = defaultdict(lambda: AutoMap(['o', 's', 'v', '^', '<', '>', 'P']))
 
 
 def plot_df(df,
@@ -23,6 +23,11 @@ def plot_df(df,
             markers=None,
             delta=False,
             fig=True,
+            x_markers=None,
+            line=None,
+            marker=None,
+            color=None,
+            suffix='',
             aggregate=True, **plt_kwargs):
     global COLORS, LINES, MARKERS, LINESTYLES
 
@@ -57,15 +62,26 @@ def plot_df(df,
 
         if lines_column is not None:
             i, *items = items
-            label += f"{i} - "
+            if lines_column != colors_column:
+                label += f"{i} - "
             kwargs['ls'] = LINES[lines_column][i]
 
         if markers_column is not None:
             i, *items = items
-            label += f"{i} - "
+            if markers_column != colors_column and markers_column != lines_column:
+                label += f"{i} - "
             kwargs['marker'] = MARKERS[markers_column][i]
 
-        label = label[:-3]
+        if color is not None:
+            kwargs['color'] = color
+
+        if line is not None:
+            kwargs['ls'] = line
+
+        if marker is not None:
+            kwargs['marker'] = marker
+
+        label = label[:-3] + suffix
 
         dfg = dfg.sort_values(x_column, ascending=True)
         if aggregate:
@@ -92,10 +108,9 @@ def plot_df(df,
                 dfg_ = dfg_.sort_values(x_column)
                 plt.plot(dfg_[x_column].values, dfg_[y_column].values, **kwargs)
 
-    plt.legend()
     plt.xlabel(x_column)
     plt.ylabel(y_column)
-    if x_column == 'compression':
+    if x_column in ('compression', 'speedup'):
         plt.xscale('log')
     ticks = sorted(set(df[x_column]))
     plt.xticks(ticks, map(str, ticks))
