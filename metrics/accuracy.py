@@ -66,6 +66,6 @@ def accuracy(model, dataloader, topk=(1,)):
             accs += np.array(correct(output, target, topk))
 
     # Normalize over data length
-    accs /= len(dataloader)
+    accs /= len(dataloader.dataset)
 
     return accs
