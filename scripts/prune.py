@@ -9,12 +9,6 @@ def jsonfile(file):
         s = json.load(f)
     return s
 
-
-# def float_fraction(x):
-#     from fractions import Fraction
-#     return float(Fraction(x))
-
-
 parser = argparse.ArgumentParser(description='Train a [pruned] Vision Net and finetune it')
 
 parser.add_argument('-s', '--strategy', dest='strategy', type=str, help='Pruning strategy', default=None)
@@ -39,24 +33,8 @@ if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpuid)
     delattr(args, 'gpuid')
 
-    from flor.experiment import PruningExperiment
+    from shrinkbench.experiment import PruningExperiment
 
     exp = PruningExperiment(**vars(args))
-        # dataset=args.dataset,
-        #                     model=args.model,
-        #                     strategy=args.strategy,
-        #                     compression=args.compression,
-        #                     seed=args.seed,
-        #                     path=args.path,
-        #                     pretrained=args.pretrained,
-        #                     dl_kwargs=args.dl_kwargs,
-        #                     train_kwargs=args.train_kwargs,
-        #                     debug=args.debug,
-        #                     resume=args.resume,
-        #                     resume_optim=args.resume_optim)
 
     exp.run()
-
-    # TODO - parse signals
-    # signal.signal(signal.SIGINT, self.SIGINT_handler)
-    # signal.signal(signal.SIGQUIT, self.SIGQUIT_handler)
