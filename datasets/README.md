@@ -36,7 +36,7 @@ For instance the path variable `/path/to/small:/other/path/to/large` would be ab
 
 The provided datasets include proper channel normalization and the transforms that pretrained models use for their pipelines.
 
-For small datasets (MNIST, CIFAR10, CIFAR100), itis easiest to download through [`torchvision.datasets`](https://pytorch.org/docs/stable/torchvision/datasets.html) by setting `download=True`.
+For small datasets (MNIST, CIFAR10, CIFAR100), it is easiest to download through [`torchvision.datasets`](https://pytorch.org/docs/stable/torchvision/datasets.html) by setting `download=True`.
 
 Data for ImageNet ILSVRC dataset can be obtained from the [official website](http://image-net.org/challenges/LSVRC/2012/) or from Academic Torrents ([train](http://academictorrents.com/details/a306397ccf9c2ead27155983c254227c0fd938e2), [val](http://academictorrents.com/details/5d6d0df7ed81efd49ca99ea4737e0ae5e3a5f2e5)).
 
