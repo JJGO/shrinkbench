@@ -70,7 +70,7 @@ class LayerMagWeight(LayerPruning, VisionPruning):
 
 # Experiments
 
-See [here]() for a notebook showing how to run pruning experiments and plot their results
+See [here](jupyter/experiment_tutorial.ipynb) for a notebook showing how to run pruning experiments and plot their results
 
 ## Modules
 
