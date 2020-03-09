@@ -20,5 +20,5 @@ class RandomPruning(VisionPruning):
 
     def model_masks(self):
         params = self.params()
-        masks = map_importances(params, lambda x: random_mask(x, self.fraction))
+        masks = map_importances(lambda x: random_mask(x, self.fraction), params)
         return masks
