@@ -29,29 +29,25 @@ def _same_device(x_mask, x):
     return x_mask
 
 
+def _same_shape(x_mask, x):
+    if isinstance(x, torch.Tensor):
+        x = x.cpu().detach().numpy()
+    return x.shape == x_mask.shape
+
+
 class MaskedModule(nn.Module):
 
     def __init__(self, layer, weight_mask, bias_mask=None):
         super(MaskedModule, self).__init__()
 
-        assert layer.weight.numpy().shape == weight_mask.shape, f"Weight Mask must match dimensions"
-
         self.weight = layer.weight
         self.bias = layer.bias
 
         # use register_buffer so model.to(device) works on fixed tensors like masks
-        self.register_buffer("weight_mask", _ensure_tensor(weight_mask))
-        self.register_buffer("bias_mask", _ensure_tensor(bias_mask))
+        self.register_buffer("weight_mask", None)
+        self.register_buffer("bias_mask", None)
 
-        # Multiply weights by masks so metrics can count nonzeros
-        self.weight_mask = _same_device(self.weight_mask, self.weight)
-        self.weight.data.mul_(self.weight_mask)
-
-        if bias_mask is not None:
-            assert self.bias is not None, "Provided layer must have bias for it to be masked"
-            assert layer.bias.numpy().shape == bias_mask.shape, f"Bias Mask must match dimensions"
-            self.bias_mask = _same_device(self.bias_mask, self.bias)
-            self.bias.data.mul_(self.bias_mask)
+        self.set_masks(weight_mask, bias_mask)
 
     def forward_pre(self):
         # Masks are pre multiplied, effectively
@@ -62,6 +58,21 @@ class MaskedModule(nn.Module):
         else:
             bias = self.bias
         return weight, bias
+
+    def set_masks(self, weight_mask, bias_mask=None):
+        assert _same_shape(weight_mask, self.weight), f"Weight Mask must match dimensions"
+
+        # Multiply weights by masks so metrics can count nonzeros
+        weight_mask = _ensure_tensor(weight_mask)
+        self.weight_mask = _same_device(weight_mask, self.weight)
+        self.weight.data.mul_(weight_mask)
+
+        if bias_mask is not None:
+            bias_mask = _ensure_tensor(bias_mask)
+            assert self.bias is not None, "Provided layer must have bias for it to be masked"
+            assert _same_shape(bias_mask, self.bias), f"Bias Mask must match dimensions"
+            self.bias_mask = _same_device(bias_mask, self.bias)
+            self.bias.data.mul_(bias_mask)
 
 
 class LinearMasked(MaskedModule):
@@ -80,7 +91,7 @@ class LinearMasked(MaskedModule):
         Keyword Arguments:
             bias_mask {numpy.ndarray} -- Mask with zero entries for bias vector (default: {None})
         """
-        super(LinearMasked, self).__init__()
+        super(LinearMasked, self).__init__(linear_layer, weight_mask, bias_mask)
         assert isinstance(linear_layer, nn.Linear), "Layer must be a linear layer"
         for attr in ['in_features', 'out_features']:
             setattr(self, attr, getattr(linear_layer, attr))
@@ -97,7 +108,7 @@ class LinearMasked(MaskedModule):
         return s
 
 
-class Conv2dMasked(nn.Module):
+class Conv2dMasked(MaskedModule):
 
     def __init__(self, conv_layer, weight_mask, bias_mask=None):
         """Masked version  of 2D convolutional layer for pruning evaluation
@@ -115,7 +126,7 @@ class Conv2dMasked(nn.Module):
         Keyword Arguments:
             bias_mask {numpy.ndarray} -- Mask with zero entries for bias vector (default: {None})
         """
-        super(Conv2dMasked, self).__init__()
+        super(Conv2dMasked, self).__init__(conv_layer, weight_mask, bias_mask)
         assert isinstance(conv_layer, nn.Conv2d), "Layer must be a Conv2d layer"
         for attr in ['in_channels', 'out_channels', 'kernel_size', 'dilation',
                      'stride', 'padding', 'padding_mode', 'groups']:

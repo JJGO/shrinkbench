@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from .modules import masked_modules, _ensure_tensor, _same_device
+from .modules import masked_modules, _ensure_tensor, _same_device, MaskedModule
 
 
 def mask_module(module, masks):
@@ -26,8 +26,11 @@ def mask_module(module, masks):
 
         if submodule in masks:
             mask_kwargs = {k+'_mask': v for k, v in masks[submodule].items()}
-            masked = masked_modules[type(submodule)](submodule, **mask_kwargs)
-            new_children[name] = masked
+            if isinstance(submodule, MaskedModule):
+                submodule.set_masks(**mask_kwargs)
+            else:
+                masked = masked_modules[type(submodule)](submodule, **mask_kwargs)
+                new_children[name] = masked
 
         # Recurse for children
         mask_module(submodule, masks)

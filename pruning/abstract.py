@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 
-from pandas import pd
 import numpy as np
+import pandas as pd
 
 from .mask import mask_module
+from .modules import MaskedModule
 from .utils import get_params
 
 
@@ -44,7 +45,7 @@ class Pruning(ABC):
 
     def apply(self, masks=None):
         if masks is None:
-            masks = self.model_masks(self.model, self.inputs, self.outputs)
+            masks = self.model_masks()
         return mask_module(self.model, masks)
 
     @abstractmethod
@@ -74,13 +75,16 @@ class Pruning(ABC):
         else:
             return {module: get_params(module) for module in self.model.modules()}
 
-    def summary(self, include_all=False):
+    def summary(self):
         rows = []
-        masks = self.model_masks()
         for name, module in self.model.named_modules():
-            if module in masks or include_all:
-                for k, v in masks[module].items():
-                    rows.append([name, k, 1/v.mean(), np.prod(v.shape), v.shape, module in self.prunable])
+            for pname, param in module.named_parameters(recurse=False):
+                if isinstance(module, MaskedModule):
+                    compression = 1/getattr(module, pname+'_mask').detach().cpu().numpy().mean()
+                else:
+                    compression = 1
+                shape = param.detach().cpu().numpy().shape
+                rows.append([name, pname, compression, np.prod(shape), shape, self.can_prune(module)])
         columns = ['module', 'param', 'comp', 'size', 'shape', 'prunable']
         return pd.DataFrame(rows, columns=columns)
 
@@ -104,7 +108,7 @@ class LayerPruning(Pruning):
         """
         masks = OrderedDict()
         if prunable is None:
-            prunable = self.prunable_modules(self.model)
+            prunable = self.prunable_modules()
 
         for module in prunable:
             masks_ = self.layer_masks(module)
