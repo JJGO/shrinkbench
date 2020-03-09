@@ -104,6 +104,7 @@ def vgg_bn_drop(pretrained=True):
 
 
 def vgg_bn_drop_100(pretrained=True):
+    # For CIFAR 100
     model = VGGBnDrop(num_classes=100)
     if pretrained:
         weights = weights_path('vgg_bn_drop_100.pt')

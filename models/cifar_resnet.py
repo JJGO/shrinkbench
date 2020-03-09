@@ -35,12 +35,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
 
-from torch.autograd import Variable
 from . import weights_path
 
 __all__ = ['ResNet', 'resnet20', 'resnet32', 'resnet44', 'resnet56', 'resnet110', 'resnet1202']
-
-from . import replace_head
 
 
 def _weights_init(m):
@@ -134,7 +131,7 @@ def resnet_factory(filters, num_classes, weight_file):
             # TODO have a better solution for DataParallel models
             # For models trained with nn.DataParallel
             if list(weights.keys())[0].startswith('module.'):
-                weights = { k[len("module."):] : v for k, v in weights.items()}
+                weights = {k[len("module."):]: v for k, v in weights.items()}
             model.load_state_dict(weights)
         return model
     return _resnet

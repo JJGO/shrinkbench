@@ -3,7 +3,7 @@ import pathlib
 
 WEIGHTS_DIR = '../pretrained'
 
-
+# TODO make it like dataset path
 def weights_path(model, path=None):
 
     if path is None:
@@ -16,11 +16,9 @@ def weights_path(model, path=None):
     for p in paths:
         for root, dirs, files in os.walk(p, followlinks=True):
             if model in files:
-                return pathlib.Path(root) / model
-            # for file in files:
-            #     path = pathlib.Path(root) / file
-            #     if str(path).endswith(model):
-            #         return path
+                wpath = pathlib.Path(root) / model
+                print(f"Found {model} under {wpath}")
+                return wpath
     else:
         raise LookupError(f"Could not find {model} in {paths}")
 
