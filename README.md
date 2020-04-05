@@ -37,10 +37,10 @@ then, to install the module itself you just need to clone the repo and  add the 
 git clone git@github.com:JJGO/shrinkbench.git shrinkbench
 
 # Bash
-echo "export PYTHONPATH=\"$PWD:\$PYTHONPATH\"" >> .bashrc
+echo "export PYTHONPATH=\"$PWD:\$PYTHONPATH\"" >> ~/.bashrc
 
 # ZSH
-echo "export PYTHONPATH=\"$PWD:\$PYTHONPATH\"" >> .zshrc
+echo "export PYTHONPATH=\"$PWD:\$PYTHONPATH\"" >> ~/.zshrc
 ```
 
 # Strategies
