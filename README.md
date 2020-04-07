@@ -37,15 +37,15 @@ then, to install the module itself you just need to clone the repo and  add the 
 git clone git@github.com:JJGO/shrinkbench.git shrinkbench
 
 # Bash
-echo "export PYTHONPATH=\"$PWD:\$PYTHONPATH\"" >> .bashrc
+echo "export PYTHONPATH=\"$PWD:\$PYTHONPATH\"" >> ~/.bashrc
 
 # ZSH
-echo "export PYTHONPATH=\"$PWD:\$PYTHONPATH\"" >> .zshrc
+echo "export PYTHONPATH=\"$PWD:\$PYTHONPATH\"" >> ~/.zshrc
 ```
 
 # Strategies
 
-ShrinkBench is not just an evaluation benchmark, it also makes developing pruning methods easy. Here's the code for a simple implementation of Global Magnitude Pruning and Layerwise Magnitude Pruning. As you can see, it is quite succint, you are just tasked with implementing `model_masks` a function that returns the masks for the model. If you want to prune your model layerwise, often a more intuitive approach, then you just need to implement `layer_masks`. For more examples see the source code for the provided baselines.
+ShrinkBench not only faciliates evaluation of pruning methods, but also their development. Here's the code for a simple implementation of Global Magnitude Pruning and Layerwise Magnitude Pruning. As you can see, it is quite succint; you are just tasked with implementing `model_masks` a function that returns the masks for the model's weight tensors. If you want to prune your model layerwise, then you just need to implement `layer_masks`. For more examples, see the source code for the provided baselines.
 
 ```python
 class GlobalMagWeight(VisionPruning):
