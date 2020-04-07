@@ -130,7 +130,7 @@ def get_classifier_module(model):
 
     else:
         raise NotImplementedError(f"Model {model} not recognized")
-
+    clf = getattr(model, clf)
     return clf
 
 
