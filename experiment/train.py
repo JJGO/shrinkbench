@@ -71,7 +71,7 @@ class TrainingExperiment(Experiment):
     def build_dataloader(self, dataset, **dl_kwargs):
         constructor = getattr(datasets, dataset)
         self.train_dataset = constructor(train=True)
-        self.val_dataset = constructor(train=True)
+        self.val_dataset = constructor(train=False)
         self.train_dl = DataLoader(self.train_dataset, shuffle=True, **dl_kwargs)
         self.val_dl = DataLoader(self.val_dataset, shuffle=False, **dl_kwargs)
 
