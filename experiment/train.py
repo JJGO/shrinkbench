@@ -7,6 +7,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torch.backends import cudnn
 from tqdm import tqdm
+import json
 
 from .base import Experiment
 from .. import datasets
@@ -213,3 +214,10 @@ class TrainingExperiment(Experiment):
                 'train_loss', 'train_acc1', 'train_acc5',
                 'val_loss', 'val_acc1', 'val_acc5',
                 ]
+
+    def __repr__(self):
+        if not isinstance(self.params['model'], str) and isinstance(self.params['model'], torch.nn.Module):
+            self.params['model'] = self.params['model'].__module__
+        
+        assert isinstance(self.params['model'], str), f"\nUnexpected model inputs: {self.params['model']}"
+        return json.dumps(self.params, indent=4)
