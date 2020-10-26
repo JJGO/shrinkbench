@@ -28,7 +28,7 @@ conda install numpy matplotlib pandas
 conda install pytorch torchvision -c pytorch
 
 # With pip
-pip install numpy matplotlib pandas pytorch torchvision
+pip install numpy matplotlib pandas torch torchvision
 ```
 
 then, to install the module itself you just need to clone the repo and  add the parent path it to your `PYTHONPATH`. For example:
