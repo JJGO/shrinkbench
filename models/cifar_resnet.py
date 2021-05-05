@@ -35,7 +35,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
 
-from . import weights_path
+from .pretrained import pretrained_weights
 
 __all__ = ['ResNet', 'resnet20', 'resnet32', 'resnet44', 'resnet56', 'resnet110', 'resnet1202']
 
@@ -122,12 +122,11 @@ class ResNet(nn.Module):
         return out
 
 
-def resnet_factory(filters, num_classes, weight_file):
+def resnet_factory(filters, num_classes, name):
     def _resnet(pretrained=True):
         model = ResNet(BasicBlock, filters, num_classes=num_classes)
         if pretrained:
-            weights = weights_path(weight_file)
-            weights = torch.load(weights)['state_dict']
+            weights = pretrained_weights(name)['state_dict']
             # TODO have a better solution for DataParallel models
             # For models trained with nn.DataParallel
             if list(weights.keys())[0].startswith('module.'):
@@ -137,16 +136,10 @@ def resnet_factory(filters, num_classes, weight_file):
     return _resnet
 
 
-resnet20 = resnet_factory([3, 3, 3], 10, 'resnet20.th')
-resnet32 = resnet_factory([5, 5, 5], 10, 'resnet32.th')
-resnet44 = resnet_factory([7, 7, 7], 10, 'resnet44.th')
-resnet56 = resnet_factory([9, 9, 9], 10, 'resnet56.th')
-resnet110 = resnet_factory([18, 18, 18], 10, 'resnet110.th')
-resnet1202 = resnet_factory([200, 200, 200], 10, 'resnet1202.th')
+resnet20 = resnet_factory([3, 3, 3], 10, 'resnet20')
+resnet32 = resnet_factory([5, 5, 5], 10, 'resnet32')
+resnet44 = resnet_factory([7, 7, 7], 10, 'resnet44')
+resnet56 = resnet_factory([9, 9, 9], 10, 'resnet56')
+resnet110 = resnet_factory([18, 18, 18], 10, 'resnet110')
+resnet1202 = resnet_factory([200, 200, 200], 10, 'resnet1202')
 
-resnet20_100 = resnet_factory([3, 3, 3], 100, 'resnet20_100.th')
-resnet32_100 = resnet_factory([5, 5, 5], 100, 'resnet32_100.th')
-resnet44_100 = resnet_factory([7, 7, 7], 100, 'resnet44_100.th')
-resnet56_100 = resnet_factory([9, 9, 9], 100, 'resnet56_100.th')
-resnet110_100 = resnet_factory([18, 18, 18], 100, 'resnet110_100.th')
-resnet1202_100 = resnet_factory([200, 200, 200], 100, 'resnet1202_100.th')

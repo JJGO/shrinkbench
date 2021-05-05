@@ -8,7 +8,7 @@ import torch.nn as nn
 # import torch.nn.functional as F
 import torch.nn.init as init
 
-from . import weights_path
+from .pretrained import pretrained_weights
 
 
 class ConvBNReLU(nn.Module):
@@ -96,8 +96,8 @@ class VGGBnDrop(nn.Module):
 def vgg_bn_drop(pretrained=True):
     model = VGGBnDrop(num_classes=10)
     if pretrained:
-        weights = weights_path('vgg_bn_drop.pt')
-        model.load_state_dict(torch.load(weights))
+        weights = pretrained_weights('vgg_bn_drop')
+        model.load_state_dict(weights)
     # else:
         # model.reset_weights()
     return model
@@ -107,8 +107,8 @@ def vgg_bn_drop_100(pretrained=True):
     # For CIFAR 100
     model = VGGBnDrop(num_classes=100)
     if pretrained:
-        weights = weights_path('vgg_bn_drop_100.pt')
-        model.load_state_dict(torch.load(weights))
+        weights = pretrained_weights('vgg_bn_drop_100')
+        model.load_state_dict(weights)
     # else:
         # model.reset_weights()
     return model
