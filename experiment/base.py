@@ -11,7 +11,6 @@ import sys
 
 import numpy as np
 import torch
-from torch.utils.tensorboard import SummaryWriter
 
 from ..util import CSVLogger
 from ..util import printc
@@ -115,6 +114,7 @@ class Experiment(ABC):
         if self.log_tb:
             tb_path = self.path / 'tbevents'
             tb_path.mkdir()
+            from torch.utils.tensorboard import SummaryWriter
             self.tblogger = SummaryWriter(log_dir=tb_path)
 
     def log(self, **kwargs):

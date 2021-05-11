@@ -24,11 +24,11 @@ To install the dependencies
 # Create a python virtualenv or conda env as necessary
 
 # With conda
-conda install numpy matplotlib pandas
+conda install numpy matplotlib pandas tqdm
 conda install pytorch torchvision -c pytorch
 
 # With pip
-pip install numpy matplotlib pandas torch torchvision
+pip install numpy matplotlib pandas torch torchvision tqdm
 ```
 
 then, to install the module itself you just need to clone the repo and  add the parent path it to your `PYTHONPATH`. For example:
