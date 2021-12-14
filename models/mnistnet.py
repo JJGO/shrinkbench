@@ -11,7 +11,8 @@ import torch.nn.functional as F
 class MnistNet(nn.Module):
     """Small network designed for Mnist debugging
     """
-    def __init__(self):
+    def __init__(self, pretrained=False):
+        assert not pretrained, f"{self.__class__.__name__} does not support pretrained weights"
         super(MnistNet, self).__init__()
         self.conv1 = nn.Conv2d(1, 20, 5, 1)
         self.conv2 = nn.Conv2d(20, 50, 5, 1)
@@ -31,7 +32,8 @@ class MnistNet(nn.Module):
 
 
 class LeNet(nn.Module):
-    def __init__(self):
+    def __init__(self, pretrained=False):
+        assert not pretrained, f"{self.__class__.__name__} does not support pretrained weights"
         super(LeNet, self).__init__()
         # 1 input image channel, 6 output channels, 3x3 square conv kernel
         self.conv1 = nn.Conv2d(1, 6, 3)
